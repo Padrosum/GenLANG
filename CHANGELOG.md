@@ -28,3 +28,4 @@ Initial public release of libgenlang and the genlang CLI.
 - Node.js N-API addon (`bindings/node`) and C# P/Invoke package (`bindings/csharp`)
 - Java JNA wrapper (`bindings/java`)
 - AI usage guide (`docs/ai-guide.md`) for generating and consuming GenLang
+- The GenLang Book (`docs/book/genlang-book.md` and `docs/book/genlang-book.pdf`)

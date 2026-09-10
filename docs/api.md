@@ -2,6 +2,8 @@
 
 All declarations live in `include/genlang.h`. Structures are opaque. Link `libgenlang`.
 
+Learning path: [The GenLang Book](book/genlang-book.md), chapters 11–16. This page is the function-by-function reference.
+
 **Thread safety:** different `GenContext` objects may be used independently. Do not mutate the same `GenDocument` from multiple threads.
 
 **Ownership:**

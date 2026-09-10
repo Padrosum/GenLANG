@@ -1,5 +1,7 @@
 # Embedding GenLang
 
+`libgenlang` is the product. Every language below talks to the same C ABI in `include/genlang.h`. Full narrative: [The GenLang Book](book/genlang-book.md), chapters 11–12.
+
 `libgenlang` is the product. Every language below talks to the same C ABI in `include/genlang.h`.
 
 Typical lifecycle:

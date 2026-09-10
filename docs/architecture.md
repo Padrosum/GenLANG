@@ -1,5 +1,7 @@
 # GenLang architecture
 
+This page describes how `libgenlang` is built. For how to *use* the language, start with [The GenLang Book](book/genlang-book.md) (chapter 13 for this pipeline).
+
 ## Pipeline
 
 ```text
@@ -100,4 +102,4 @@ Each context carries limits (source size, nesting depth, string length, object p
 
 ## Security
 
-Parsing GenLang does not execute code, run a shell, touch the network, or load plugins. Untrusted files are still subject to resource exhaustion; use context limits.
+Parsing GenLang does not execute code, run a shell, touch the network, or load plugins. `iceaktar` may read local `.gl` files only. Untrusted files are still subject to resource exhaustion; use context limits.

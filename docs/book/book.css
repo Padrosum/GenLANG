@@ -1,0 +1,179 @@
+@page {
+    size: A4;
+    margin: 22mm 18mm 24mm 18mm;
+    @top-left {
+        content: "The GenLang Book";
+        font-size: 9pt;
+        color: #4a5568;
+        letter-spacing: 0.04em;
+    }
+    @top-right {
+        content: "v0.1.0";
+        font-size: 9pt;
+        color: #4a5568;
+    }
+    @bottom-center {
+        content: counter(page);
+        font-size: 9pt;
+        color: #2d3748;
+    }
+}
+
+@page :first {
+    @top-left { content: none; }
+    @top-right { content: none; }
+    @bottom-center { content: none; }
+}
+
+html {
+    font-size: 10.5pt;
+}
+
+body {
+    font-family: "Liberation Serif", "DejaVu Serif", "Noto Serif", "Times New Roman", serif;
+    color: #1a202c;
+    line-height: 1.45;
+    hyphens: auto;
+}
+
+header#title-block-header {
+    page-break-after: always;
+    text-align: left;
+    padding-top: 38mm;
+}
+
+header#title-block-header h1.title {
+    font-size: 32pt;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 8pt 0;
+    color: #0b3d2e;
+}
+
+header#title-block-header p.subtitle {
+    font-size: 14pt;
+    color: #2f6f4e;
+    margin: 0 0 28pt 0;
+}
+
+header#title-block-header p.author,
+header#title-block-header p.date {
+    font-size: 12pt;
+    color: #4a5568;
+    margin: 0;
+}
+
+nav#TOC {
+    page-break-after: always;
+}
+
+nav#TOC > ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+nav#TOC ul ul {
+    padding-left: 1.2em;
+}
+
+nav#TOC a {
+    color: #1a202c;
+    text-decoration: none;
+}
+
+h1 {
+    font-size: 18pt;
+    color: #0b3d2e;
+    page-break-before: always;
+    margin-top: 0;
+    padding-top: 4mm;
+    border-bottom: 1px solid #9bb5a4;
+    padding-bottom: 4pt;
+}
+
+h1:first-of-type {
+    page-break-before: avoid;
+}
+
+h2 {
+    font-size: 13.5pt;
+    color: #1a4731;
+    margin-top: 1.3em;
+    page-break-after: avoid;
+}
+
+h3 {
+    font-size: 11.5pt;
+    color: #276749;
+    page-break-after: avoid;
+}
+
+p {
+    margin: 0.55em 0;
+}
+
+a {
+    color: #276749;
+}
+
+code, pre {
+    font-family: "Liberation Mono", "DejaVu Sans Mono", "Noto Sans Mono", monospace;
+    font-size: 0.86em;
+}
+
+code {
+    background: #f1f5f2;
+    padding: 0.05em 0.28em;
+    border-radius: 2px;
+}
+
+pre {
+    background: #f4f7f5;
+    border: 1px solid #d5e0d8;
+    padding: 8pt 10pt;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    page-break-inside: avoid;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0.8em 0;
+    font-size: 0.95em;
+    page-break-inside: avoid;
+}
+
+th, td {
+    border: 1px solid #c5d0c8;
+    padding: 4pt 6pt;
+    text-align: left;
+    vertical-align: top;
+}
+
+th {
+    background: #e8f0ea;
+    color: #0b3d2e;
+}
+
+blockquote {
+    margin: 0.8em 0;
+    padding: 0.35em 10pt;
+    background: #f7faf8;
+    color: #2d3748;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #c5d0c8;
+    margin: 1.5em 0;
+}
+
+ul, ol {
+    margin: 0.4em 0 0.6em 1.2em;
+}
+
+li {
+    margin: 0.15em 0;
+}

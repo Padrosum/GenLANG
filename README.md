@@ -4,58 +4,67 @@
 [![C17](https://img.shields.io/badge/C-17-00599C.svg)](include/genlang.h)
 [![Release](https://img.shields.io/badge/release-0.1.0-3d5a80.svg)](CHANGELOG.md)
 
-Bildirimsel bir veri dili ve **gömülebilir C kitaplığı**. Hiyerarşik türler (cins / tür), bağımsız küme üyeliği, yapılandırılmış değerler, referanslar ve sorgular.
+A declarative data language and an **embeddable C library**. It models hierarchical types (genus / species), independent set membership, structured values, references, and queries.
 
-A declarative data language and an **embeddable C library**. Hierarchical types (genus / species), independent set membership, structured values, references, and queries.
+It is not a universal JSON replacement. Keep it next to an application when you need a taxonomy and tags in the same document without mixing them.
 
-JSON’un evrensel yerine geçmez. Tür zinciri ile etiketlerin *aynı anda, karışmadan* durması gerektiğinde uygulamanın yanında durur.
-
-**Ürün kütüphanedir. CLI yalnızca tüketicidir.**
+**The library is the product. The CLI only consumes that library.**
 
 ```text
-libgenlang  =  çekirdek ürün     (opak C ABI)
-genlang     =  komut satırı      (yalnızca include/genlang.h)
+libgenlang  =  core product     (opaque C ABI)
+genlang     =  CLI frontend     (include/genlang.h only)
 ```
+
+Current release: **0.1.0** · License: **MIT**
+
+### The GenLang Book
+
+Canonical learning and usage text (34 pages):
+
+| Format | In this repo | On GitHub |
+| --- | --- | --- |
+| Markdown | [`docs/book/genlang-book.md`](docs/book/genlang-book.md) | [view](https://github.com/Padrosum/GenLANG/blob/main/docs/book/genlang-book.md) |
+| PDF | [`docs/book/genlang-book.pdf`](docs/book/genlang-book.pdf) | [view](https://github.com/Padrosum/GenLANG/blob/main/docs/book/genlang-book.pdf) · [raw download](https://github.com/Padrosum/GenLANG/raw/main/docs/book/genlang-book.pdf) |
 
 ---
 
-## Neden ayrı tutuyoruz?
+## Why GenLang exists
 
-JSON `boncuk` nesnesini yazar. Şunları native olarak söyleyemez:
+JSON can represent `boncuk` as an object. It cannot natively say:
 
-- `Kedi`, `Memeli` → `Hayvan` → `Canli` zincirinde bir türdür
-- `boncuk` bir `Kedi` örneğidir
-- `boncuk` ayrıca `EvcilHayvanlar` ve `SiyahHayvanlar` kümelerindedir
+- `Kedi` is a species of `Memeli`, under `Hayvan`, under `Canli`
+- `boncuk` is an instance of type `Kedi`
+- `boncuk` also belongs to the sets `EvcilHayvanlar` and `SiyahHayvanlar`
 
-Bunlar farklı ilişkilerdir:
+Those are different relations. GenLang keeps them separate:
 
 ```text
-Tür hiyerarşisi (SUBTYPE_OF / TYPE_OF)
+Type hierarchy (SUBTYPE_OF / TYPE_OF)
 
   Kedi → Memeli → Hayvan → Canli
 
-Küme üyeliği (MEMBER_OF) — türlerden bağımsız
+Set membership (MEMBER_OF), independent of types
 
   boncuk ∈ EvcilHayvanlar
   boncuk ∈ SiyahHayvanlar
 ```
 
-Tür ataları kümelerden türetilmez. Küme üyeliği türlerden türetilmez.
+Type ancestry is never inferred from sets. Set membership is never inferred from types.
 
 ---
 
-## Dil
+## Language
 
-| Kavram | Anahtar sözcük | Anlam |
+| Concept | Keyword | Meaning |
 | --- | --- | --- |
-| Cins | `cins` | Hiyerarşide genel tip |
-| Tür | `tur` | Daha özgül tip |
-| Küme | `kume` | Sırasız üye koleksiyonu |
-| Veri | `veri` | İsteğe bağlı tipli adlandırılmış değer |
-| Üyelik | `uye` | Bağımsız `MEMBER_OF` |
-| İçe aktar | `iceaktar` | Yerel `.gl` dosyası (kod çalışmaz) |
+| Genus | `cins` | A general type in the hierarchy |
+| Species | `tur` | A more specific type |
+| Set | `kume` | An unordered collection of members |
+| Data | `veri` | A named value, optionally typed |
+| Membership | `uye` | Independent `MEMBER_OF` |
+| Import | `iceaktar` | Local `.gl` file (no code execution) |
 
-Değerler: `null`, `true` / `false`, tam sayı, kayan nokta, UTF-8 dizge, liste, nesne, `@referans`. Tanımlayıcılar UTF-8’dir (`Canlı` geçerlidir). Anahtar sözcükler ASCII kalır.
+Values: `null`, booleans, integers, floats, UTF-8 strings, lists, objects, references (`@name`). Identifiers are UTF-8 (`Canlı` is valid). Keywords stay ASCII.
 
 ```gl
 cins Canli
@@ -74,26 +83,19 @@ veri boncuk : Kedi {
     renk = "siyah"
 }
 
-veri karamel : Kopek {
-    isim = "Karamel"
-    yas = 7
-    renk = "kahverengi"
-}
-
 uye boncuk -> EvcilHayvanlar
 uye boncuk -> SiyahHayvanlar
-uye karamel -> EvcilHayvanlar
 ```
 
-İç içe yol: `x.a[1].b[2]`. Başka dosya: `iceaktar "types.gl"` (göreli, yalnızca `.gl`, bir kez, döngü yok).
+Nested path: `x.a[1].b[2]`. Import: `iceaktar "types.gl"` (relative, `.gl` only, loaded once).
 
-Daha fazla örnek: [`examples/`](examples/)
+Samples: [`examples/`](examples/). Full rules: [The GenLang Book](docs/book/genlang-book.md).
 
 ---
 
-## Kurulum
+## Build
 
-CMake 3.16+, C17 derleyici, standart C kütüphanesi. `uthash` vendored.
+Requires CMake 3.16+, a C17 compiler, and a standard C library. `uthash` is vendored.
 
 ```bash
 git clone git@github.com:Padrosum/GenLANG.git
@@ -106,8 +108,6 @@ ctest --test-dir build
 ```bash
 cmake --install build
 ```
-
-CMake tüketicisi:
 
 ```cmake
 find_package(GenLang REQUIRED)
@@ -137,13 +137,13 @@ genlang format --in-place file.gl
 genlang repl [file.gl]
 ```
 
-Çıkış kodları: `0` başarı, `1` genel, `2` sözdizimi, `3` anlamsal, `4` I/O.
+Exit codes: `0` success, `1` general, `2` lex/parse, `3` semantic, `4` I/O.
 
-REPL (hepsi kütüphane üzerinden): `dyaz`, `goster`, `uyeler`, `icerir`, `ustler`, `altlar`, `yol`, `ara`, `liste`, `yardim`, `temizle`, `cikis`.
+REPL (library-backed): `dyaz`, `goster`, `uyeler`, `icerir`, `ustler`, `altlar`, `yol`, `ara`, `liste`, `yardim`, `temizle`, `cikis`.
 
 ---
 
-## C kitaplığı
+## C library
 
 ```c
 #include <genlang.h>
@@ -154,7 +154,6 @@ int main(void)
     GenContext *ctx = gen_context_create();
     GenDocument *doc = NULL;
     GenValue *value = NULL;
-    GenQueryResult *types = NULL;
 
     if (gen_document_load_file(ctx, "examples/animals.gl", &doc) != GEN_OK) {
         fprintf(stderr, "%s\n", gen_error_message(gen_context_last_error(ctx)));
@@ -167,37 +166,30 @@ int main(void)
         gen_value_free(value);
     }
 
-    if (gen_types_of(doc, "boncuk", &types) == GEN_OK) {
-        for (size_t i = 0; i < gen_query_result_count(types); i++) {
-            printf("%s\n", gen_query_result_name(types, i));
-        }
-        gen_query_result_free(types);
-    }
-
     gen_document_free(doc);
     gen_context_free(ctx);
     return 0;
 }
 ```
 
-- **OWNED** — bağlam, belge, `gen_get` değeri, sorgu sonucu, serileştirilmiş metin. Eşleşen `gen_*_free` / `gen_string_free`.
-- **BORROWED** — belgeden alınan adlar ve `const GenValue *`. Belge yok edilene kadar geçerli.
+- **OWNED** — context, document, `gen_get` values, query results, serialized text. Free with `gen_*_free` / `gen_string_free`.
+- **BORROWED** — names and `const GenValue *` taken from a document. Valid until that document is freed.
 
-Global durum yoktur. Ayrı `GenContext` nesneleri farklı iş parçacıklarından kullanılabilir. Aynı `GenDocument` üzerinde eşzamanlı yazma desteklenmez.
+No global context. Distinct `GenContext` objects may be used from different threads. Concurrent mutation of the same `GenDocument` is not supported.
 
-Tam API: [`docs/api.md`](docs/api.md)
+Full API: [`docs/api.md`](docs/api.md). Book chapters 11–13 cover embedding.
 
 ---
 
-## Diğer diller
+## Other languages
 
-Bağlayıcılar yalnızca `include/genlang.h` + `libgenlang` konuşur.
+Wrappers under [`bindings/`](bindings/) talk only to `include/genlang.h` + `libgenlang`:
 
-| Dil | Yol | Yöntem |
+| Language | Path | Approach |
 | --- | --- | --- |
 | C / C++ | `include/genlang.h` | public ABI |
 | Python | `bindings/python` | `cffi` |
-| Rust | `bindings/rust` | `Drop` sarmalayıcı |
+| Rust | `bindings/rust` | `Drop` wrappers |
 | Go | `bindings/go` | `cgo` |
 | Node.js | `bindings/node` | N-API |
 | Java | `bindings/java` | JNA |
@@ -207,68 +199,203 @@ Bağlayıcılar yalnızca `include/genlang.h` + `libgenlang` konuşur.
 PYTHONPATH=bindings/python/src GENLANG_LIB_DIR=build python3 -c "import genlang; print(genlang.version())"
 ```
 
-Ayrıntı: [`docs/embedding.md`](docs/embedding.md)
+Details: [`docs/embedding.md`](docs/embedding.md).
 
 ---
 
-## Mimari
+## Architecture
 
 ```text
-Kaynak → Lexer → Parser → AST → Anlamsal çözümleme → GenDocument
+Source → Lexer → Parser → AST → Semantic analyzer → GenDocument
                                               /    |    \
-                                      Tür grafı  Kümeler  Değerler
+                                      Type graph  Sets  Values
                                               \    |    /
-                                                Sorgu → Serileştirme
+                                                Query → Serialization
 ```
 
-CLI ayrıştırıcı veya çalışma zamanı içermez. [`docs/architecture.md`](docs/architecture.md)
+The CLI never implements parser or runtime logic. [`docs/architecture.md`](docs/architecture.md)
 
 ```text
 include/genlang.h     public ABI
-src/                  kütüphane
-cli/                  genlang yürütülebiliri
+src/                  library
+cli/                  genlang executable
 bindings/             Python, Rust, Go, Node, C#, Java
-lsp/                  dil sunucusu
+lsp/                  language server
 tests/                CTest
-examples/             .gl örnekleri
-docs/                 dil, API, gömme, AI kılavuzu
+examples/             .gl samples
+docs/                 book, grammar, API, embedding
+docs/book/            The GenLang Book (Markdown + PDF)
 cmake/                CMake / pkg-config
-third_party/uthash/   vendored (public API değil)
+third_party/uthash/   vendored (not public API)
 ```
 
 ---
 
-## Yol haritası
+## Testing
 
-0.1.0 kullanılabilir bir MVP’dir. Sonraki iş aynı C ABI’nin arkasında kalır.
+```bash
+ctest --test-dir build
+```
 
-| Sürüm | Durum |
+The suite covers the lexer, parser, semantic analyzer, runtime, queries, serialization, the public C API, `examples/*.gl`, and language bindings when those tools are on `PATH`.
+
+Rebuild the book PDF (optional; `pandoc` + WeasyPrint):
+
+```bash
+bash docs/book/build-pdf.sh
+```
+
+---
+
+## Roadmap
+
+The 0.1.0 line is a usable MVP. Later work stays behind the same C ABI.
+
+| Series | Status |
 | --- | --- |
-| 0.1 Foundation | çekirdek kütüphane, CLI, CTest |
-| 0.2 Tooling | query, format, JSON, çoklu hata |
-| 0.3 Growth | `iceaktar`, şema, Unicode, Python / Rust / Go |
+| 0.1 Foundation | library, CLI, CTest |
+| 0.2 Tooling | query, format, JSON, multi-error |
+| 0.3 Growth | `iceaktar`, schemas, Unicode, Python / Rust / Go |
 | 0.4 Editor & interop | LSP, YAML, binary, Node, C#, Java |
-| 1.0 | WASM, ABI politikası, eşzamanlı salt okuma |
+| 1.0 | WASM, ABI policy, concurrent read-only |
 
-**Kapsam dışı:** `.gl` içinde kabuk / ağ / kod; tür ↔ küme çıkarımı; JSON’u genel format olarak değiştirmek.
+**Out of scope:** code, network, or shell in `.gl` files; inferring types from sets (or the reverse); replacing JSON as a general format.
 
 ---
 
-## Belgelendirme
+## Documentation
 
-- [Kullanım kılavuzu (Türkçe / English)](docs/usage.md)
-- [AI kılavuzu](docs/ai-guide.md) — dil üreten ve tüketen modeller için
-- [Dilbilgisi](docs/grammar.md)
+- **Book (Markdown):** [`docs/book/genlang-book.md`](docs/book/genlang-book.md) · [GitHub](https://github.com/Padrosum/GenLANG/blob/main/docs/book/genlang-book.md)
+- **Book (PDF):** [`docs/book/genlang-book.pdf`](docs/book/genlang-book.pdf) · [GitHub](https://github.com/Padrosum/GenLANG/blob/main/docs/book/genlang-book.pdf) · [download](https://github.com/Padrosum/GenLANG/raw/main/docs/book/genlang-book.pdf)
+- [Short usage guide (Türkçe / English)](docs/usage.md)
+- [Grammar](docs/grammar.md)
 - [C API](docs/api.md)
-- [Mimari](docs/architecture.md)
-- [Gömme](docs/embedding.md)
-- [Değişiklikler](CHANGELOG.md)
-- [Katkı](CONTRIBUTING.md)
+- [Architecture](docs/architecture.md)
+- [Embedding](docs/embedding.md)
+- [AI usage guide](docs/ai-guide.md)
+- [Changelog](CHANGELOG.md)
+- [Contributing](CONTRIBUTING.md)
 
 ---
 
-## Lisans
+## License
 
-[MIT](LICENSE). Telif: Alihan Karakuş, 2026.
+[MIT](LICENSE). Copyright © 2026 Alihan Karakuş.
 
-`uthash` kendi BSD-tarzı lisansı ile [`third_party/uthash/`](third_party/uthash/) altındadır.
+`uthash` is vendored under its own BSD-style license in [`third_party/uthash/`](third_party/uthash/).
+
+---
+
+## Examples
+
+Runnable copies live under [`examples/`](examples/). More in [the book](docs/book/genlang-book.md).
+
+### Types, sets, and membership
+
+[`examples/animals.gl`](examples/animals.gl)
+
+```gl
+cins Canli
+cins Hayvan -> Canli
+cins Memeli -> Hayvan
+
+tur Kedi -> Memeli
+tur Kopek -> Memeli
+
+kume EvcilHayvanlar
+kume SiyahHayvanlar
+
+veri boncuk : Kedi {
+    isim = "Boncuk"
+    yas = 4
+    renk = "siyah"
+}
+
+veri karamel : Kopek {
+    isim = "Karamel"
+    yas = 7
+    renk = "kahverengi"
+}
+
+uye boncuk -> EvcilHayvanlar
+uye boncuk -> SiyahHayvanlar
+uye karamel -> EvcilHayvanlar
+```
+
+```bash
+./build/genlang query examples/animals.gl boncuk.yas
+# 4
+```
+
+### Nested paths
+
+[`examples/nested.gl`](examples/nested.gl) — `x.a[1].b[2]` is `60`.
+
+```gl
+veri x {
+    a = [
+        { b = [10, 20, 30] },
+        { b = [40, 50, 60] }
+    ]
+}
+```
+
+### Optional schemas
+
+[`examples/schema.gl`](examples/schema.gl) — extra keys on the instance are allowed; kinds must match.
+
+```gl
+cins Kayit {
+    id = ""
+}
+
+cins Hayvan -> Kayit {
+    isim = ""
+    yas = 0
+}
+
+tur Kedi -> Hayvan {
+    renk = ""
+}
+
+veri boncuk : Kedi {
+    id = "kedi-001"
+    isim = "Boncuk"
+    yas = 4
+    renk = "siyah"
+    ekstra = true
+}
+```
+
+### References
+
+[`examples/relations.gl`](examples/relations.gl) — `@ahmet` is a reference, not a string and not a copy.
+
+```gl
+cins Kisi
+
+veri ahmet : Kisi {
+    isim = "Ahmet"
+}
+
+veri owner = @ahmet
+
+veri proje {
+    sahibi = @ahmet
+    etiketler = ["genlang", "veri"]
+}
+```
+
+### Imports
+
+[`examples/import/`](examples/import/) — load the file; in-memory `parse` rejects `iceaktar`.
+
+```gl
+iceaktar "types.gl"
+
+tur Kedi -> Memeli
+
+veri boncuk : Kedi {
+    isim = "Boncuk"
+}
+```

@@ -1,7 +1,6 @@
 # GenLang grammar
 
-This grammar matches the recursive-descent parser in `src/parser/parser.c`.
-It is written in EBNF-like notation.
+Normative EBNF for GenLang 0.1.0. It matches the recursive-descent parser in `src/parser/parser.c`. Learning and usage: [The GenLang Book](book/genlang-book.md) (chapters 4–6). If this file and the book disagree on syntax, fix both to match the parser.
 
 Lexical rules are applied before parsing. Whitespace and `#` line comments are discarded.
 
