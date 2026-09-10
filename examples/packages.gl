@@ -1,0 +1,59 @@
+# Tool/package inventory: hierarchy is what the thing *is*,
+# sets are release channels and implementation tags.
+
+cins Yazilim {
+    aciklama = ""
+}
+
+cins Arac -> Yazilim
+tur TerminalAraci -> Arac {
+    dil = ""
+}
+tur Masaustu -> Arac
+tur Kutuphane -> Yazilim
+
+kume Uretim
+kume Deneysel
+kume GoIle
+kume CIle
+kume Tarayici
+
+veri pmusic : TerminalAraci {
+    aciklama = "Klavye odaklı terminal müzik çalar"
+    dil = "Go"
+    kaynak = "https://github.com/Padrosum/pmusic"
+}
+
+veri pnot : TerminalAraci {
+    aciklama = "Şifreli not uygulaması"
+    dil = "C"
+    kaynak = "https://github.com/Padrosum/pnot"
+}
+
+veri ppd : TerminalAraci {
+    aciklama = "Kişisel GitHub araç indiricisi"
+    dil = "C"
+    kaynak = "https://github.com/Padrosum/ppd"
+}
+
+veri pixora : Masaustu {
+    aciklama = "Yerel görüntü sıkıştırma ve dönüştürme"
+    kaynak = "https://github.com/Padrosum/pixora"
+}
+
+veri genlang : Kutuphane {
+    aciklama = "Bildirimsel veri dili ve gömülebilir C kitaplığı"
+    dil = "C17"
+    kaynak = "https://github.com/Padrosum"
+}
+
+uye pmusic -> Uretim
+uye pmusic -> GoIle
+uye pnot -> Uretim
+uye pnot -> CIle
+uye ppd -> Deneysel
+uye ppd -> CIle
+uye pixora -> Uretim
+uye pixora -> Tarayici
+uye genlang -> Deneysel
+uye genlang -> CIle

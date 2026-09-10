@@ -1,0 +1,16 @@
+cins Modul
+cins Kutuphane -> Modul
+
+tur Cekirdek -> Kutuphane
+tur Arayuz -> Modul
+
+kume Uretim
+kume Deneysel
+
+veri genlang : Cekirdek {
+    dil = "C17"
+    surum = "0.1.0"
+    bagimliliklar = ["uthash"]
+}
+
+uye genlang -> Uretim

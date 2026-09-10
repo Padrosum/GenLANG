@@ -1,0 +1,12 @@
+# Primitive values, lists, and objects
+
+veri numbers = [10, 20, 30, 40]
+
+veri person {
+    name = "Ahmet"
+    age = 25
+    active = true
+    nickname = null
+}
+
+veri ratio = 1.5

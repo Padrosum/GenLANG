@@ -1,0 +1,24 @@
+# Optional schemas: property objects on cins/tur constrain typed veri.
+# Extra keys on the instance are allowed. Ancestor keys apply; a child
+# overrides the same key. Sample values are kinds, not allowed-value lists.
+
+cins Kayit {
+    id = ""
+}
+
+cins Hayvan -> Kayit {
+    isim = ""
+    yas = 0
+}
+
+tur Kedi -> Hayvan {
+    renk = ""
+}
+
+veri boncuk : Kedi {
+    id = "kedi-001"
+    isim = "Boncuk"
+    yas = 4
+    renk = "siyah"
+    ekstra = true
+}

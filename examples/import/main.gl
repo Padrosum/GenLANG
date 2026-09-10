@@ -1,0 +1,7 @@
+iceaktar "types.gl"
+
+tur Kedi -> Memeli
+
+veri boncuk : Kedi {
+    isim = "Boncuk"
+}

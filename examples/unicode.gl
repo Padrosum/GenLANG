@@ -1,0 +1,17 @@
+# Identifiers are UTF-8. Keywords stay ASCII.
+
+cins Canlı
+cins Hayvan -> Canlı
+tur Kedi -> Hayvan
+
+kume EvcilHayvanlar
+kume Siyahlar
+
+veri böncü : Kedi {
+    isim = "Böncü"
+    yaş = 3
+    renk = "siyah"
+}
+
+uye böncü -> EvcilHayvanlar
+uye böncü -> Siyahlar

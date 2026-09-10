@@ -1,0 +1,12 @@
+cins Kisi
+
+veri ahmet : Kisi {
+    isim = "Ahmet"
+}
+
+veri owner = @ahmet
+
+veri proje {
+    sahibi = @ahmet
+    etiketler = ["genlang", "veri"]
+}

@@ -1,0 +1,47 @@
+# Catalog for a local music library: types are kinds of media,
+# sets are playlists / tags. Being a Parca does not put a track
+# on a playlist; uye does.
+
+cins Medya {
+    baslik = ""
+}
+
+cins Ses -> Medya
+tur Album -> Ses
+tur Parca -> Ses {
+    sure_sn = 0
+}
+
+kume Favoriler
+kume Gece
+kume Enstruman
+
+veri gece_yuruyusu : Album {
+    baslik = "Gece Yürüyüşü"
+    sanatci = "Padros"
+    yil = 2026
+}
+
+veri parca_01 : Parca {
+    baslik = "İlk Işık"
+    sure_sn = 214
+    album = @gece_yuruyusu
+}
+
+veri parca_02 : Parca {
+    baslik = "Yağmur"
+    sure_sn = 187
+    album = @gece_yuruyusu
+}
+
+veri parca_03 : Parca {
+    baslik = "Sessizlik"
+    sure_sn = 96
+    album = @gece_yuruyusu
+}
+
+uye parca_01 -> Favoriler
+uye parca_01 -> Gece
+uye parca_02 -> Gece
+uye parca_03 -> Enstruman
+uye parca_03 -> Gece

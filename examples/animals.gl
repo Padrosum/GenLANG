@@ -1,0 +1,26 @@
+cins Canli
+cins Hayvan -> Canli
+cins Memeli -> Hayvan
+
+tur Kedi -> Memeli
+tur Kopek -> Memeli
+
+kume EvcilHayvanlar
+kume SiyahHayvanlar
+
+veri boncuk : Kedi {
+    isim = "Boncuk"
+    yas = 4
+    renk = "siyah"
+}
+
+veri karamel : Kopek {
+    isim = "Karamel"
+    yas = 7
+    renk = "kahverengi"
+}
+
+uye boncuk -> EvcilHayvanlar
+uye boncuk -> SiyahHayvanlar
+
+uye karamel -> EvcilHayvanlar

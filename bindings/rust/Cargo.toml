@@ -1,0 +1,10 @@
+[package]
+name = "genlang"
+version = "0.1.0"
+edition = "2021"
+description = "Safe Rust wrapper around libgenlang"
+license = "MIT"
+publish = false
+
+[lib]
+path = "src/lib.rs"

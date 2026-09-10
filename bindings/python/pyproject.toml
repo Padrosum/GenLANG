@@ -1,0 +1,13 @@
+[project]
+name = "genlang"
+version = "0.1.0"
+description = "Python cffi bindings for libgenlang"
+requires-python = ">=3.9"
+dependencies = ["cffi>=1.15"]
+
+[build-system]
+requires = ["setuptools>=61", "cffi>=1.15"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,41 @@
+# Documents vs tags: a DersNotu is a kind of Belge.
+# Sifreli / Taslak / Arsiv are independent memberships.
+
+cins Belge {
+    baslik = ""
+}
+
+tur DersNotu -> Belge
+tur Arastirma -> Belge
+tur Gunluk -> Belge
+
+kume Sifreli
+kume Taslak
+kume Arsiv
+kume DilTasarimi
+
+veri semantik : DersNotu {
+    baslik = "Tür hiyerarşisi ve küme üyeliği"
+    ders = "GenLang"
+}
+
+veri luma_bellek : Arastirma {
+    baslik = "LumaOS bellek haritası"
+    proje = @luma_os
+}
+
+veri luma_os : Arastirma {
+    baslik = "LumaOS çekirdek notları"
+    proje_adi = "LumaOS"
+}
+
+veri gun_12 : Gunluk {
+    baslik = "12 Eylül"
+    ruh_hali = "odaklı"
+}
+
+uye semantik -> DilTasarimi
+uye semantik -> Taslak
+uye luma_bellek -> Sifreli
+uye luma_os -> Arsiv
+uye gun_12 -> Sifreli
