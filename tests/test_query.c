@@ -78,6 +78,17 @@ void test_query(void)
     TEST_ASSERT(gen_value_int(value) == 4);
     gen_value_free(value);
 
+    TEST_ASSERT(gen_entities_of(doc, "Kedi", &result) == GEN_OK);
+    TEST_ASSERT(gen_query_result_count(result) == 1);
+    TEST_ASSERT_STR(gen_query_result_name(result, 0), "boncuk");
+    gen_query_result_free(result);
+
+    TEST_ASSERT(gen_entities_of(doc, "Memeli", &result) == GEN_OK);
+    TEST_ASSERT(gen_query_result_count(result) == 2);
+    gen_query_result_free(result);
+
+    TEST_ASSERT(gen_entities_of(doc, "Missing", &result) == GEN_ERR_NOT_FOUND);
+
     gen_document_free(doc);
     gen_context_free(ctx);
 }

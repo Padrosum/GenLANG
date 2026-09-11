@@ -96,6 +96,8 @@ interface Lib extends Library {
 
     int gen_set_members(Pointer document, Pointer setName, PointerByReference result);
 
+    int gen_entities_of(Pointer document, Pointer typeName, PointerByReference result);
+
     int gen_is_member(Pointer document, Pointer setName, Pointer entity, IntByReference flag);
 
     SizeT gen_query_result_count(Pointer result);

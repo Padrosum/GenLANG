@@ -3,18 +3,23 @@
 #include "error/error.h"
 #include "lexer/lexer.h"
 
-static void test_lex_ok(const char *src, GenTokenKind first)
+static void test_lex_ok_mode(const char *src, GenLexMode mode, GenTokenKind first)
 {
     GenContext *ctx = gen_context_create();
     GenToken *tokens = NULL;
     size_t count = 0;
-    GenResult rc = gen_lex_all(ctx, src, strlen(src), &tokens, &count);
+    GenResult rc = gen_lex_all(ctx, src, strlen(src), mode, &tokens, &count);
     TEST_ASSERT(rc == GEN_OK);
     TEST_ASSERT(count >= 2);
     TEST_ASSERT(tokens[0].kind == first);
     TEST_ASSERT(tokens[count - 1u].kind == TOK_EOF);
     gen_tokens_free(tokens);
     gen_context_free(ctx);
+}
+
+static void test_lex_ok(const char *src, GenTokenKind first)
+{
+    test_lex_ok_mode(src, GEN_LEX_DOCUMENT, first);
 }
 
 void test_lexer(void)
@@ -55,13 +60,17 @@ void test_lexer(void)
     test_lex_ok("=", TOK_EQ);
     test_lex_ok("@", TOK_AT);
     test_lex_ok("# comment\ncins", TOK_CINS);
+    test_lex_ok("liste", TOK_IDENT);
+    test_lex_ok("ara", TOK_IDENT);
+    test_lex_ok_mode("liste", GEN_LEX_REPL, TOK_LISTE);
+    test_lex_ok_mode("dyaz", GEN_LEX_REPL, TOK_DYAZ);
 
     ctx = gen_context_create();
-    TEST_ASSERT(gen_lex_all(ctx, "\"abc\"", 5, &tokens, &count) == GEN_OK);
+    TEST_ASSERT(gen_lex_all(ctx, "\"abc\"", 5, GEN_LEX_DOCUMENT, &tokens, &count) == GEN_OK);
     TEST_ASSERT(tokens[0].kind == TOK_STRING);
     gen_tokens_free(tokens);
     tokens = NULL;
-    TEST_ASSERT(gen_lex_all(ctx, "$", 1, &tokens, &count) == GEN_ERR_LEX);
+    TEST_ASSERT(gen_lex_all(ctx, "$", 1, GEN_LEX_DOCUMENT, &tokens, &count) == GEN_ERR_LEX);
     TEST_ASSERT(gen_error_code(gen_context_last_error(ctx)) == GEN_ERR_LEX);
     gen_tokens_free(tokens);
     gen_context_free(ctx);

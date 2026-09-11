@@ -24,6 +24,9 @@ typedef struct GenProp {
 
 struct GenValue {
     GenValueType kind;
+    size_t line;
+    size_t column;
+    size_t offset;
     union {
         bool boolean;
         int64_t integer;
@@ -129,6 +132,7 @@ GenResult gen_value_object_put(GenValue *object, const char *key, GenValue *item
 GenTypeNode *gen_type_lookup(const GenDocument *doc, const char *name);
 GenSetNode *gen_set_lookup(const GenDocument *doc, const char *name);
 GenEntity *gen_entity_lookup(const GenDocument *doc, const char *name);
+bool gen_type_is_or_subtype(const GenTypeNode *type, const GenTypeNode *ancestor);
 
 GenResult gen_type_collect_ancestors(const GenTypeNode *type, GenStrVec *out);
 GenResult gen_type_collect_descendants(const GenTypeNode *type, GenStrVec *out);

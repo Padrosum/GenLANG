@@ -254,6 +254,14 @@ func (d *Document) Members(setName string) ([]string, error) {
 	return namesFromQuery(rc, result)
 }
 
+func (d *Document) EntitiesOf(typeName string) ([]string, error) {
+	cname := C.CString(typeName)
+	defer C.free(unsafe.Pointer(cname))
+	var result *C.GenQueryResult
+	rc := C.gen_entities_of(d.doc, cname, &result)
+	return namesFromQuery(rc, result)
+}
+
 func (d *Document) IsMember(setName, entity string) (bool, error) {
 	cset := C.CString(setName)
 	defer C.free(unsafe.Pointer(cset))

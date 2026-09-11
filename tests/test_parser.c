@@ -74,4 +74,21 @@ void test_parser(void)
     parse_fail("iceaktar \"missing.gl\"\n", GEN_ERR_IO);
     parse_fail("iceaktar \"nope.txt\"\n", GEN_ERR_SEMANTIC);
     parse_fail("iceaktar\n", GEN_ERR_PARSE);
+
+    doc = parse_ok("veri liste = 1\nveri ara { yol = true }\n");
+    TEST_ASSERT(gen_entity_count(doc) == 2);
+    {
+        GenValue *v = NULL;
+        TEST_ASSERT(gen_get(doc, "liste", &v) == GEN_OK);
+        TEST_ASSERT(gen_value_int(v) == 1);
+        gen_value_free(v);
+        TEST_ASSERT(gen_get(doc, "ara.yol", &v) == GEN_OK);
+        TEST_ASSERT(gen_value_bool(v) == 1);
+        gen_value_free(v);
+    }
+    gen_document_free(doc);
+
+    doc = parse_ok("veri x { cins = 1, tur = \"k\" }\n");
+    TEST_ASSERT(gen_entity_count(doc) == 1);
+    gen_document_free(doc);
 }

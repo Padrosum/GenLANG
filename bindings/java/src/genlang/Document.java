@@ -157,6 +157,13 @@ public final class Document implements AutoCloseable {
         return namesFromQuery(rc, result.getValue(), "unknown set '" + setName + "'");
     }
 
+    public List<String> entitiesOf(String typeName) {
+        ensureOpen();
+        PointerByReference result = new PointerByReference();
+        int rc = Lib.INSTANCE.gen_entities_of(doc, utf8z(typeName), result);
+        return namesFromQuery(rc, result.getValue(), "unknown type '" + typeName + "'");
+    }
+
     public boolean isMember(String setName, String entity) {
         ensureOpen();
         IntByReference flag = new IntByReference();

@@ -101,6 +101,17 @@ void test_integration(void)
     gen_document_free(doc);
     doc = NULL;
 
+    TEST_ASSERT(gen_document_load_file(ctx, "examples/relations.gl", &doc) == GEN_OK);
+    TEST_ASSERT(gen_get(doc, "proje.sahibi", &value) == GEN_OK);
+    TEST_ASSERT(gen_value_type(value) == GEN_VALUE_REFERENCE);
+    TEST_ASSERT_STR(gen_value_reference(value), "ahmet");
+    gen_value_free(value);
+    TEST_ASSERT(gen_entities_of(doc, "Kisi", &result) == GEN_OK);
+    TEST_ASSERT(gen_query_result_count(result) == 1);
+    gen_query_result_free(result);
+    gen_document_free(doc);
+    doc = NULL;
+
     TEST_ASSERT(gen_document_load_file(ctx, "tests/fixtures/import/diamond.gl", &doc) == GEN_OK);
     TEST_ASSERT(gen_type_count(doc) == 4);
     gen_document_free(doc);

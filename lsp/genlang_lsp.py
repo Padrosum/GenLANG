@@ -26,6 +26,21 @@ def _uri_to_path(uri: str) -> str:
     return uri
 
 
+def _ident_char(ch: str, start: bool) -> bool:
+    if not ch:
+        return False
+    o = ord(ch)
+    if ("A" <= ch <= "Z") or ("a" <= ch <= "z") or ch == "_":
+        return True
+    if not start and "0" <= ch <= "9":
+        return True
+    if o < 0xA0:
+        return False
+    if ch.isspace():
+        return False
+    return True
+
+
 def _ident_at(text: str, line: int, character: int) -> str | None:
     lines = text.splitlines()
     if line < 0 or line >= len(lines):
@@ -36,10 +51,10 @@ def _ident_at(text: str, line: int, character: int) -> str | None:
     if character > len(row):
         character = len(row)
     i = character
-    while i > 0 and (row[i - 1].isalnum() or row[i - 1] == "_"):
+    while i > 0 and _ident_char(row[i - 1], False):
         i -= 1
     j = character
-    while j < len(row) and (row[j].isalnum() or row[j] == "_"):
+    while j < len(row) and _ident_char(row[j], j == i):
         j += 1
     name = row[i:j]
     return name or None

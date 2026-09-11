@@ -225,7 +225,7 @@ ASCII form: `[A-Za-z_][A-Za-z0-9_]*`.
 
 Non-ASCII: any UTF-8 scalar value that is not a C0/C1 control, not U+00A0–style space, and not ASCII punctuation. Letters such as `ı`, `ö`, `ş`, `Canlı` are valid. Digits cannot start an identifier. Hyphens are **not** allowed in names (`kedi-001` is invalid as an identifier; it is fine inside a string).
 
-Keywords are reserved and cannot be identifiers.
+Keywords are reserved **as document keywords** and cannot be identifiers: `cins`, `tur`, `kume`, `veri`, `uye`, `iceaktar`, `true`, `false`, `null`. REPL command words (`liste`, `ara`, `yol`, …) **are valid identifiers in `.gl` files**; they are keywords only in the REPL. Object property names may be identifiers or keywords (`{ cins = 1 }` is legal).
 
 ## Keywords
 
@@ -241,14 +241,14 @@ Literals (also reserved):
 true  false  null
 ```
 
-REPL-only (illegal in `.gl` files):
+REPL-only (illegal **as commands** in `.gl` files; legal as names and property keys):
 
 ```text
 dyaz goster uyeler icerir ustler altlar
 yol ara liste yardim temizle cikis
 ```
 
-If you emit a document file, never include REPL commands.
+If you emit a document file, never include REPL commands. You may name an entity `liste` or a property `ara`.
 
 ## Numbers
 
@@ -348,7 +348,7 @@ veri owner = @ahmet
 veri proje { sahibi = @ahmet }
 ```
 
-`@ahmet` is `GEN_VALUE_REFERENCE`, not a string and not a copy of Ahmet’s fields. The target must be an **entity**. A missing target is `GEN_ERR_SEMANTIC` (`unknown reference '@…'`). There are no optional or weak refs.
+`@ahmet` is `GEN_VALUE_REFERENCE`, not a string and not a copy of Ahmet’s fields. The target must be an **entity**. A missing target is `GEN_ERR_SEMANTIC` (`unknown reference '@…'`), with the location of the `@` value. There are no optional or weak refs. If a type schema uses `@Kisi` and `Kisi` is a type, the target entity must have that type or a subtype.
 
 To read the target’s fields, query the entity name (`ahmet.isim`) or resolve the ref name in the host language.
 
@@ -411,6 +411,7 @@ Rules:
 5. A child type overrides the same key; the more specific type wins.
 6. Types with no property object, and no ancestor schema, impose no extra constraints.
 7. Nested object schemas recurse. A list schema with at least one element uses **the first element** as the item template for every instance element.
+8. If a schema value is `@Name` and `Name` is a declared type, the instance must be a reference to an entity whose type is `Name` or a subtype. If `Name` is not a type, only the reference **kind** is required (the dummy-value pattern).
 
 ```gl
 cins Kayit {
@@ -436,6 +437,8 @@ veri boncuk : Kedi {
 ```
 
 This is `examples/schema.gl`. `yas = 0` in the schema requires an **integer**. `yas = 4.0` would fail.
+
+A schema field `@Kisi` (when `Kisi` is a type) requires a reference to an entity of that type or a subtype. See `examples/relations.gl`.
 
 Set property objects are **metadata on the set**, not schemas for members.
 
@@ -548,6 +551,7 @@ The REPL parser accepts a **declaration**, a **command**, or a **path**. Command
 | `yol A B` | path in the type graph if one type is an ancestor of the other | `gen_type_path` |
 | `ara text` | case-sensitive substring over names and nested string values; sorted | `gen_search` |
 | `liste cins\|tur\|kume\|veri` | names in declaration order | listing getters |
+| `liste Type` | entities of that type, including subtypes | `gen_entities_of` |
 | `yardim` | help | CLI only |
 | `temizle` | ANSI clear screen | CLI only |
 | `cikis` | exit | CLI only |
@@ -555,7 +559,7 @@ The REPL parser accepts a **declaration**, a **command**, or a **path**. Command
 
 An empty REPL concatenates declarations and re-parses them with `gen_document_parse` (so `iceaktar` still needs an origin).
 
-`gen_types_of(entity)` returns the declared type, then ancestors. `gen_ancestors_of(type)` does **not** include self. `gen_descendants_of` walks children recursively in declaration order.
+`gen_types_of(entity)` returns the declared type, then ancestors. `gen_ancestors_of(type)` does **not** include self. `gen_descendants_of` walks children recursively in declaration order. `gen_entities_of(type)` returns entities whose declared type is that type or a subtype, in declaration order.
 
 `gen_search` uses `strstr` (case-sensitive). It matches type names, set names, entity names, and string values nested inside entities. Results are sorted.
 
@@ -736,7 +740,7 @@ Source → Lexer → Parser → AST → iceaktar expansion
 
 The AST is discarded after the document is built. Runtime objects do not alias parser nodes. JSON, YAML, and binary converters walk the runtime document. Import of those formats emits GenLang text internally and parses it, so semantic rules still apply.
 
-Internal relation tags: `SUBTYPE_OF`, `TYPE_OF`, `MEMBER_OF`, `HAS_PROPERTY`, `CONTAINS`, `REFERENCES`. The public ABI does not expose the graph.
+Internal relation tags: `SUBTYPE_OF`, `TYPE_OF`, `MEMBER_OF`, `HAS_PROPERTY`, and `REFERENCES`. `CONTAINS` is reserved and not populated. The public ABI does not expose the graph. Runtime values keep the source line, column, and offset of the originating AST node so unknown `@` references and schema mismatches can point at the value, not only the entity.
 
 The CLI must not grow parser or runtime logic. Bindings must not reimplement the language.
 
@@ -803,7 +807,8 @@ Do not hand-author binary. Round-trip through the library.
 | --- | --- |
 | Duplicate type / set / entity | `GEN_ERR_DUPLICATE` |
 | Duplicate membership of the same entity in the same set | `GEN_ERR_DUPLICATE` |
-| Unknown parent type, entity type, set, or `@ref` target | `GEN_ERR_SEMANTIC` |
+| Unknown parent type, entity type, set, or `@ref` target | `GEN_ERR_SEMANTIC` (location is the `@` value when known) |
+| `@ref` whose type does not match a schema `@Type` | `GEN_ERR_SEMANTIC` |
 | `uye` of a missing entity | `GEN_ERR_SEMANTIC` |
 | Type cycle, including `cins A -> A` | `GEN_ERR_CYCLE` |
 | Schema mismatch or missing required key | `GEN_ERR_SEMANTIC` |
@@ -900,9 +905,9 @@ Put genera in `types.gl`, import them, declare species and data in `main.gl`. Al
 
 Before you output a `.gl` document:
 
-- [ ] Only document keywords: `cins` `tur` `kume` `veri` `uye` `iceaktar`
+- [ ] Only document *commands* are declarations: `cins` `tur` `kume` `veri` `uye` `iceaktar` (REPL words may be names)
 - [ ] Types and sets are different; membership is `uye`
-- [ ] Objects use `ident = value`; lists use commas
+- [ ] Objects use `key = value`; lists use commas
 - [ ] Strings are `"…"`; refs are `@ident`
 - [ ] Typed `veri` matches ancestor schemas if present
 - [ ] Every `@name`, `: Type`, and `uye … -> Set` names a declared entity, type, or set
@@ -918,7 +923,7 @@ When explaining a file, describe type ancestry and set membership in **separate 
 | `examples/animals.gl` | types, sets, typed entities, membership |
 | `examples/basic.gl` | primitives, lists, objects |
 | `examples/nested.gl` | `x.a[1].b[2]` |
-| `examples/relations.gl` | `@` references |
+| `examples/relations.gl` | `@` references and typed `@Kisi` schema |
 | `examples/schema.gl` | optional type schemas |
 | `examples/unicode.gl` | UTF-8 identifiers |
 | `examples/music.gl` | media kinds vs playlists |

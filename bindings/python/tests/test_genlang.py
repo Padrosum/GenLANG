@@ -40,6 +40,8 @@ class TestGenLang(unittest.TestCase):
         self.assertEqual(doc.entity("boncuk")["yas"], 4)
         self.assertTrue(doc.is_member("Evcil", "boncuk"))
         self.assertEqual(doc.members("Evcil"), ["boncuk"])
+        self.assertEqual(doc.entities_of("Kedi"), ["boncuk"])
+        self.assertEqual(doc.entities_of("Hayvan"), ["boncuk"])
         self.assertIn("Kedi", doc.types_of("boncuk"))
         self.assertIn("Evcil", doc.memberships("boncuk"))
         self.assertIn("cins Canli", doc.serialize())

@@ -164,6 +164,11 @@ unsafe extern "C" {
         set_name: *const c_char,
         out_result: *mut *mut GenQueryResult,
     ) -> c_int;
+    pub fn gen_entities_of(
+        document: *const GenDocument,
+        type_name: *const c_char,
+        out_result: *mut *mut GenQueryResult,
+    ) -> c_int;
     pub fn gen_is_member(
         document: *const GenDocument,
         set_name: *const c_char,

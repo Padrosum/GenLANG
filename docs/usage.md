@@ -43,13 +43,13 @@ uye boncuk -> EvcilHayvanlar
 
 Belge: `cins` `tur` `kume` `veri` `uye` `iceaktar`.  
 Değer: `true` `false` `null`.  
-REPL (`.gl` dosyasında yok): `dyaz` `goster` `uyeler` `icerir` `ustler` `altlar` `yol` `ara` `liste` `yardim` `temizle` `cikis`.
+REPL (komut olarak `.gl` dosyasında yok; isim olarak kullanılabilir): `dyaz` `goster` `uyeler` `icerir` `ustler` `altlar` `yol` `ara` `liste` `yardim` `temizle` `cikis`.
 
 Nesneler `anahtar = değer` kullanır (JSON `:` değil). Listelerde virgül zorunludur. Referans `@ad` bir dizge değildir. Tanımlayıcılar UTF-8’dir (`Canlı`); anahtar sözcükler ASCII kalır.
 
 `iceaktar "types.gl"` yalnızca yerel `.gl` okur. Bellekte `parse` içe aktarmayı reddeder; dosyadan `load` edin.
 
-Şema: `cins`/`tur` özellik nesnesi varsa, o tipe bağlı `veri` aynı anahtarları ve **değer türlerini** sağlamalıdır. Fazla alan serbesttir.
+Şema: `cins`/`tur` özellik nesnesi varsa, o tipe bağlı `veri` aynı anahtarları ve **değer türlerini** sağlamalıdır. Fazla alan serbesttir. Şemada `@Kisi` (Kisi bir türse) hedef entity’nin o tür veya alt tür olmasını ister. `liste Kedi` o türün örneklerini listeler.
 
 Ayrıntı, hatalar, CLI, ABI ve örnekler: [kitap](book/genlang-book.md).
 
@@ -69,12 +69,12 @@ Same listing as above. Check and query with the CLI. `Kedi → Hayvan → Canli`
 
 Documents: `cins` `tur` `kume` `veri` `uye` `iceaktar`.  
 Literals: `true` `false` `null`.  
-REPL only (illegal in `.gl` files): `dyaz` `goster` `uyeler` `icerir` `ustler` `altlar` `yol` `ara` `liste` `yardim` `temizle` `cikis`.
+REPL only (illegal as commands in `.gl` files; legal as names): `dyaz` `goster` `uyeler` `icerir` `ustler` `altlar` `yol` `ara` `liste` `yardim` `temizle` `cikis`.
 
 Objects use `key = value` (not JSON `:`). Lists require commas. `@name` is a reference, not a string. Identifiers are UTF-8; keywords stay ASCII.
 
 `iceaktar "types.gl"` reads local `.gl` files only. In-memory `parse` rejects imports; `load` a file.
 
-If a type has a property object, typed `veri` must supply those keys with matching **kinds**. Extra keys are allowed.
+If a type has a property object, typed `veri` must supply those keys with matching **kinds**. Extra keys are allowed. A schema `@Kisi` (when `Kisi` is a type) requires the target entity to have that type or a subtype. `liste Kedi` lists instances of a type.
 
 Everything else — schemas, imports, paths, CLI, C ABI, bindings, interchange, errors — is in [the book](book/genlang-book.md).

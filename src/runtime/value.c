@@ -71,6 +71,9 @@ GenResult gen_value_clone_impl(const GenValue *value, GenValue **out_value)
     if (copy == NULL) {
         return GEN_ERR_OUT_OF_MEMORY;
     }
+    copy->line = value->line;
+    copy->column = value->column;
+    copy->offset = value->offset;
     switch (value->kind) {
     case GEN_VALUE_NULL:
         break;

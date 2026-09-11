@@ -369,10 +369,15 @@ veri boncuk : Kedi {
 
 ### References
 
-[`examples/relations.gl`](examples/relations.gl) — `@ahmet` is a reference, not a string and not a copy.
+[`examples/relations.gl`](examples/relations.gl) — `@ahmet` is a reference, not a string and not a copy. A schema `@Kisi` requires the target to be that type (or a subtype).
 
 ```gl
 cins Kisi
+
+cins Proje {
+    sahibi = @Kisi
+    etiketler = [""]
+}
 
 veri ahmet : Kisi {
     isim = "Ahmet"
@@ -380,7 +385,7 @@ veri ahmet : Kisi {
 
 veri owner = @ahmet
 
-veri proje {
+veri proje : Proje {
     sahibi = @ahmet
     etiketler = ["genlang", "veri"]
 }

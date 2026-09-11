@@ -10,6 +10,23 @@ GenTypeNode *gen_type_lookup(const GenDocument *doc, const char *name)
     return node;
 }
 
+bool gen_type_is_or_subtype(const GenTypeNode *type, const GenTypeNode *ancestor)
+{
+    const GenTypeNode *cur;
+
+    if (type == NULL || ancestor == NULL) {
+        return false;
+    }
+    cur = type;
+    while (cur != NULL) {
+        if (cur == ancestor) {
+            return true;
+        }
+        cur = cur->parent;
+    }
+    return false;
+}
+
 GenResult gen_type_collect_ancestors(const GenTypeNode *type, GenStrVec *out)
 {
     const GenTypeNode *cur;

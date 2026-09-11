@@ -183,6 +183,9 @@ static GenResult gen_ast_to_value(
         );
         return GEN_ERR_OUT_OF_MEMORY;
     }
+    v->line = node->line;
+    v->column = node->column;
+    v->offset = node->offset;
     *out_value = v;
     return GEN_OK;
 }
@@ -276,9 +279,9 @@ static GenResult gen_walk_refs(GenContext *ctx, GenDocument *doc, const GenValue
             gen_context_set_error(
                 ctx,
                 GEN_ERR_SEMANTIC,
-                0,
-                0,
-                0,
+                value->line,
+                value->column,
+                value->offset,
                 "unknown reference '@%s'",
                 value->u.reference.data
             );
@@ -293,10 +296,6 @@ static GenResult gen_walk_refs(GenContext *ctx, GenDocument *doc, const GenValue
         for (i = 0; i < value->u.list.count; i++) {
             rc = gen_walk_refs(ctx, doc, value->u.list.items[i], owner);
             if (rc == GEN_ERR_OUT_OF_MEMORY) {
-                return rc;
-            }
-            rc = gen_relation_add(doc, GEN_REL_CONTAINS, owner, owner);
-            if (rc != GEN_OK) {
                 return rc;
             }
         }
@@ -419,8 +418,28 @@ static const GenValue *gen_schema_lookup(const GenTypeNode *type, const char *ke
     return NULL;
 }
 
+static void gen_shape_loc(
+    const GenEntity *ent,
+    const GenValue *value,
+    size_t *line,
+    size_t *column,
+    size_t *offset
+)
+{
+    if (value != NULL && value->line != 0) {
+        *line = value->line;
+        *column = value->column;
+        *offset = value->offset;
+        return;
+    }
+    *line = ent->line;
+    *column = ent->column;
+    *offset = 0;
+}
+
 static GenResult gen_check_shape(
     GenContext *ctx,
+    GenDocument *doc,
     const GenEntity *ent,
     const char *type_name,
     const char *where,
@@ -429,16 +448,21 @@ static GenResult gen_check_shape(
 )
 {
     size_t i;
+    size_t line;
+    size_t column;
+    size_t offset;
     GenResult rc;
+
+    gen_shape_loc(ent, value, &line, &column, &offset);
 
     if (schema->kind == GEN_VALUE_OBJECT) {
         if (value->kind != GEN_VALUE_OBJECT) {
             gen_context_set_error(
                 ctx,
                 GEN_ERR_SEMANTIC,
-                ent->line,
-                ent->column,
-                0,
+                line,
+                column,
+                offset,
                 "entity '%s' field '%s' must be an object to match type '%s'",
                 ent->name,
                 where[0] != '\0' ? where : "<root>",
@@ -454,9 +478,9 @@ static GenResult gen_check_shape(
                 gen_context_set_error(
                     ctx,
                     GEN_ERR_SEMANTIC,
-                    ent->line,
-                    ent->column,
-                    0,
+                    line,
+                    column,
+                    offset,
                     "entity '%s' is missing property '%s%s%s' required by type '%s'",
                     ent->name,
                     where,
@@ -472,7 +496,7 @@ static GenResult gen_check_shape(
                 snprintf(child_where, sizeof(child_where), "%s.%s", where, key);
             }
             rc = gen_check_shape(
-                ctx, ent, type_name, child_where, schema->u.object.values[i], child
+                ctx, doc, ent, type_name, child_where, schema->u.object.values[i], child
             );
             if (rc == GEN_ERR_OUT_OF_MEMORY) {
                 return rc;
@@ -485,9 +509,9 @@ static GenResult gen_check_shape(
             gen_context_set_error(
                 ctx,
                 GEN_ERR_SEMANTIC,
-                ent->line,
-                ent->column,
-                0,
+                line,
+                column,
+                offset,
                 "entity '%s' field '%s' must be a list to match type '%s'",
                 ent->name,
                 where[0] != '\0' ? where : "<root>",
@@ -500,7 +524,13 @@ static GenResult gen_check_shape(
                 char item_where[256];
                 snprintf(item_where, sizeof(item_where), "%s[%zu]", where, i);
                 rc = gen_check_shape(
-                    ctx, ent, type_name, item_where, schema->u.list.items[0], value->u.list.items[i]
+                    ctx,
+                    doc,
+                    ent,
+                    type_name,
+                    item_where,
+                    schema->u.list.items[0],
+                    value->u.list.items[i]
                 );
                 if (rc == GEN_ERR_OUT_OF_MEMORY) {
                     return rc;
@@ -509,13 +539,59 @@ static GenResult gen_check_shape(
         }
         return GEN_OK;
     }
+    if (schema->kind == GEN_VALUE_REFERENCE) {
+        GenTypeNode *want_type;
+        GenEntity *target;
+
+        if (value->kind != GEN_VALUE_REFERENCE) {
+            gen_context_set_error(
+                ctx,
+                GEN_ERR_SEMANTIC,
+                line,
+                column,
+                offset,
+                "entity '%s' property '%s' has type %s, type '%s' requires %s",
+                ent->name,
+                where,
+                gen_kind_name(value->kind),
+                type_name,
+                gen_kind_name(schema->kind)
+            );
+            return GEN_ERR_SEMANTIC;
+        }
+        want_type = gen_type_lookup(doc, schema->u.reference.data);
+        if (want_type == NULL) {
+            return GEN_OK;
+        }
+        target = gen_entity_lookup(doc, value->u.reference.data);
+        if (target == NULL) {
+            return GEN_OK;
+        }
+        if (target->type == NULL || !gen_type_is_or_subtype(target->type, want_type)) {
+            gen_context_set_error(
+                ctx,
+                GEN_ERR_SEMANTIC,
+                line,
+                column,
+                offset,
+                "entity '%s' property '%s' references '@%s', type '%s' requires a '%s'",
+                ent->name,
+                where,
+                value->u.reference.data,
+                type_name,
+                want_type->name
+            );
+            return GEN_ERR_SEMANTIC;
+        }
+        return GEN_OK;
+    }
     if (value->kind != schema->kind) {
         gen_context_set_error(
             ctx,
             GEN_ERR_SEMANTIC,
-            ent->line,
-            ent->column,
-            0,
+            line,
+            column,
+            offset,
             "entity '%s' property '%s' has type %s, type '%s' requires %s",
             ent->name,
             where,
@@ -528,7 +604,7 @@ static GenResult gen_check_shape(
     return GEN_OK;
 }
 
-static GenResult gen_check_entity_schema(GenContext *ctx, GenEntity *ent)
+static GenResult gen_check_entity_schema(GenContext *ctx, GenDocument *doc, GenEntity *ent)
 {
     GenStrVec keys;
     size_t i;
@@ -589,7 +665,7 @@ static GenResult gen_check_entity_schema(GenContext *ctx, GenEntity *ent)
             rc = GEN_ERR_SEMANTIC;
             continue;
         }
-        if (gen_check_shape(ctx, ent, ent->type->name, keys.items[i], schema, got) ==
+        if (gen_check_shape(ctx, doc, ent, ent->type->name, keys.items[i], schema, got) ==
             GEN_ERR_OUT_OF_MEMORY) {
             gen_strvec_free_all(&keys);
             return GEN_ERR_OUT_OF_MEMORY;
@@ -820,7 +896,7 @@ GenResult gen_semantic_analyze(GenContext *ctx, const GenAst *program, GenDocume
     for (i = 0; i < doc->entities_order.count; i++) {
         GenEntity *ent = (GenEntity *)doc->entities_order.items[i];
         ctx->source_path = ent->source_path;
-        rc = gen_check_entity_schema(ctx, ent);
+        rc = gen_check_entity_schema(ctx, doc, ent);
         if (rc == GEN_ERR_OUT_OF_MEMORY) {
             return rc;
         }

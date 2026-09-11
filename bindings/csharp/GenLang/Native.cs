@@ -122,6 +122,9 @@ internal static class Native
     internal static extern int gen_set_members(IntPtr document, IntPtr setName, out IntPtr result);
 
     [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
+    internal static extern int gen_entities_of(IntPtr document, IntPtr typeName, out IntPtr result);
+
+    [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]
     internal static extern int gen_is_member(IntPtr document, IntPtr setName, IntPtr entity, out int flag);
 
     [DllImport(Lib, CallingConvention = CallingConvention.Cdecl)]

@@ -439,6 +439,16 @@ GENLANG_API GenResult gen_set_members(
     GenQueryResult **out_result
 );
 
+/*
+ * Entities whose declared type is type_name or a subtype of it,
+ * in declaration order. Unknown type is GEN_ERR_NOT_FOUND.
+ */
+GENLANG_API GenResult gen_entities_of(
+    const GenDocument *document,
+    const char *type_name,
+    GenQueryResult **out_result
+);
+
 GENLANG_API GenResult gen_is_member(
     const GenDocument *document,
     const char *set_name,

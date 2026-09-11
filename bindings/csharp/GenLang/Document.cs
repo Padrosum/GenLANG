@@ -247,6 +247,21 @@ public sealed class Document : IDisposable
         }
     }
 
+    public IReadOnlyList<string> EntitiesOf(string typeName)
+    {
+        EnsureOpen();
+        var cName = Native.Utf8Alloc(typeName);
+        try
+        {
+            var rc = Native.gen_entities_of(_doc, cName, out var result);
+            return NamesFromQuery(rc, result, $"unknown type '{typeName}'");
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(cName);
+        }
+    }
+
     public bool IsMember(string setName, string entity)
     {
         EnsureOpen();

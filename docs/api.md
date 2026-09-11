@@ -180,11 +180,12 @@ Errors: `GEN_ERR_NOT_FOUND`, `GEN_ERR_INDEX`, `GEN_ERR_TYPE`, `GEN_ERR_QUERY`, `
 
 ### Query results
 
-`gen_types_of`, `gen_ancestors_of`, `gen_descendants_of`, `gen_memberships_of`, `gen_set_members`, `gen_type_path`, `gen_search` return an **OWNED** `GenQueryResult`.
+`gen_types_of`, `gen_ancestors_of`, `gen_descendants_of`, `gen_entities_of`, `gen_memberships_of`, `gen_set_members`, `gen_type_path`, `gen_search` return an **OWNED** `GenQueryResult`.
 
 - `gen_types_of(entity)` — declared type then ancestors
 - `gen_ancestors_of(type)` — parents only (not self)
 - `gen_descendants_of(type)` — children, declaration order, recursive
+- `gen_entities_of(type)` — entities whose type is `type` or a subtype, declaration order; unknown type is `GEN_ERR_NOT_FOUND`
 - `gen_memberships_of(entity)` — sets the entity belongs to
 - `gen_set_members(set)` — member entity names
 - `gen_is_member(set, entity, &flag)` — `flag` is `0` or `1`; unknown set is `GEN_ERR_NOT_FOUND`

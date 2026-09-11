@@ -58,6 +58,11 @@ typedef struct {
     GenTokenKind kind;
 } GenKeyword;
 
+typedef enum {
+    GEN_LEX_DOCUMENT = 0,
+    GEN_LEX_REPL
+} GenLexMode;
+
 const GenKeyword *gen_keywords(size_t *out_count);
 const char *gen_token_kind_name(GenTokenKind kind);
 bool gen_token_is_keyword(GenTokenKind kind);
@@ -66,6 +71,7 @@ GenResult gen_lex_all(
     GenContext *ctx,
     const char *src,
     size_t length,
+    GenLexMode mode,
     GenToken **out_tokens,
     size_t *out_count
 );

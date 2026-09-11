@@ -274,6 +274,12 @@ class Document:
             lib.gen_set_members(self._doc, set_name.encode("utf-8"), result), result
         )
 
+    def entities_of(self, type_name: str) -> list[str]:
+        result = ffi.new("GenQueryResult **")
+        return _query_names(
+            lib.gen_entities_of(self._doc, type_name.encode("utf-8"), result), result
+        )
+
     def is_member(self, set_name: str, entity: str) -> bool:
         flag = ffi.new("int *")
         rc = lib.gen_is_member(

@@ -129,6 +129,7 @@ ffi.cdef(
     GenResult gen_descendants_of(const GenDocument *document, const char *name, GenQueryResult **out_result);
     GenResult gen_memberships_of(const GenDocument *document, const char *name, GenQueryResult **out_result);
     GenResult gen_set_members(const GenDocument *document, const char *set_name, GenQueryResult **out_result);
+    GenResult gen_entities_of(const GenDocument *document, const char *type_name, GenQueryResult **out_result);
     GenResult gen_is_member(const GenDocument *document, const char *set_name, const char *entity_name, int *out_is_member);
     size_t gen_query_result_count(const GenQueryResult *result);
     const char *gen_query_result_name(const GenQueryResult *result, size_t index);

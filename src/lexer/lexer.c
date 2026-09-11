@@ -4,6 +4,33 @@
 #include "internal/string.h"
 #include "memory/allocator.h"
 
+static const GenKeyword GEN_DOC_KEYWORDS[] = {
+    {"cins", TOK_CINS},
+    {"tur", TOK_TUR},
+    {"kume", TOK_KUME},
+    {"veri", TOK_VERI},
+    {"uye", TOK_UYE},
+    {"iceaktar", TOK_ICEAKTAR},
+    {"true", TOK_TRUE},
+    {"false", TOK_FALSE},
+    {"null", TOK_NULL}
+};
+
+static const GenKeyword GEN_REPL_KEYWORDS[] = {
+    {"dyaz", TOK_DYAZ},
+    {"goster", TOK_GOSTER},
+    {"uyeler", TOK_UYELER},
+    {"icerir", TOK_ICERIR},
+    {"ustler", TOK_USTLER},
+    {"altlar", TOK_ALTLAR},
+    {"yol", TOK_YOL},
+    {"ara", TOK_ARA},
+    {"liste", TOK_LISTE},
+    {"yardim", TOK_YARDIM},
+    {"temizle", TOK_TEMIZLE},
+    {"cikis", TOK_CIKIS}
+};
+
 static const GenKeyword GEN_KEYWORDS[] = {
     {"cins", TOK_CINS},
     {"tur", TOK_TUR},
@@ -126,16 +153,37 @@ static bool gen_is_space(unsigned char c)
     return c == ' ' || c == '\t' || c == '\r' || c == '\n';
 }
 
-static GenTokenKind gen_lookup_keyword(const char *s, size_t n)
+static GenTokenKind gen_lookup_in_table(
+    const GenKeyword *table,
+    size_t count,
+    const char *s,
+    size_t n
+)
 {
     size_t i;
-    size_t count = sizeof(GEN_KEYWORDS) / sizeof(GEN_KEYWORDS[0]);
-
     for (i = 0; i < count; i++) {
-        if (strlen(GEN_KEYWORDS[i].text) == n &&
-            memcmp(GEN_KEYWORDS[i].text, s, n) == 0) {
-            return GEN_KEYWORDS[i].kind;
+        if (strlen(table[i].text) == n && memcmp(table[i].text, s, n) == 0) {
+            return table[i].kind;
         }
+    }
+    return TOK_IDENT;
+}
+
+static GenTokenKind gen_lookup_keyword(const char *s, size_t n, GenLexMode mode)
+{
+    GenTokenKind kind = gen_lookup_in_table(
+        GEN_DOC_KEYWORDS, sizeof(GEN_DOC_KEYWORDS) / sizeof(GEN_DOC_KEYWORDS[0]), s, n
+    );
+    if (kind != TOK_IDENT) {
+        return kind;
+    }
+    if (mode == GEN_LEX_REPL) {
+        return gen_lookup_in_table(
+            GEN_REPL_KEYWORDS,
+            sizeof(GEN_REPL_KEYWORDS) / sizeof(GEN_REPL_KEYWORDS[0]),
+            s,
+            n
+        );
     }
     return TOK_IDENT;
 }
@@ -406,6 +454,7 @@ GenResult gen_lex_all(
     GenContext *ctx,
     const char *src,
     size_t length,
+    GenLexMode mode,
     GenToken **out_tokens,
     size_t *out_count
 )
@@ -506,7 +555,7 @@ GenResult gen_lex_all(
                     gen_lex_advance_bytes(&st, n);
                 }
                 tok.length = st.pos - off;
-                tok.kind = gen_lookup_keyword(src + off, tok.length);
+                tok.kind = gen_lookup_keyword(src + off, tok.length, mode);
                 if (!gen_lex_push(&st, tok)) {
                     gen_tokens_free(st.tokens);
                     return ctx->last_error.code;

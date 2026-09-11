@@ -53,14 +53,29 @@ static int gen_is_complete(const char *s)
     return braces <= 0 && brackets <= 0 && !in_string;
 }
 
+static int gen_ident_continue_byte(unsigned char c)
+{
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') ||
+           c == '_' || c >= 0x80u;
+}
+
+static int gen_keyword_prefix(const char *line, const char *kw)
+{
+    size_t n = strlen(kw);
+    if (strncmp(line, kw, n) != 0) {
+        return 0;
+    }
+    return line[n] == '\0' || !gen_ident_continue_byte((unsigned char)line[n]);
+}
+
 static int gen_starts_with_decl(const char *line)
 {
     while (*line == ' ' || *line == '\t') {
         line++;
     }
-    return strncmp(line, "cins", 4) == 0 || strncmp(line, "tur", 3) == 0 ||
-           strncmp(line, "kume", 4) == 0 || strncmp(line, "veri", 4) == 0 ||
-           strncmp(line, "uye", 3) == 0 || strncmp(line, "iceaktar", 8) == 0;
+    return gen_keyword_prefix(line, "cins") || gen_keyword_prefix(line, "tur") ||
+           gen_keyword_prefix(line, "kume") || gen_keyword_prefix(line, "veri") ||
+           gen_keyword_prefix(line, "uye") || gen_keyword_prefix(line, "iceaktar");
 }
 
 int gen_cli_repl(const char *path)

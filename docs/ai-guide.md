@@ -37,7 +37,7 @@ It is **not**:
 4. **`@name` is a reference, not a string.** `"@ahmet"` is a string. `@ahmet` is `GEN_VALUE_REFERENCE` and the entity `ahmet` must exist.
 5. **`gen_document_parse` rejects `iceaktar`.** Load from a file (`load_file`) or parse with an origin path (`parse_at`).
 6. **Do not put parser/runtime logic in `cli/`.** Bindings must copy borrowed strings before the document is freed.
-7. **Keywords are reserved and ASCII.** You cannot name a type `cins` or an entity `true`.
+7. **Document keywords are reserved and ASCII.** You cannot name a type `cins` or an entity `true`. REPL command words (`liste`, `ara`, …) **are valid names in `.gl` files**. Object keys may be keywords (`{ cins = 1 }`).
 8. **One namespace per kind, not a global name pool.** Duplicate `cins`/`tur` names, duplicate `kume` names, or duplicate `veri` names are errors. A type and an entity may share a spelling (avoid it; it confuses queries).
 9. **Negative list indexes are invalid.** Paths are `ident{.prop|[index]}…` with `index >= 0`.
 10. **Do not invent keywords, types, or APIs.** If it is not in this guide or `include/genlang.h`, it does not exist.
@@ -63,11 +63,11 @@ It is **not**:
 
 `true` `false` `null`
 
-### REPL-only keywords (illegal in document files)
+### REPL-only keywords (illegal as **commands** in document files)
 
 `dyaz` `goster` `uyeler` `icerir` `ustler` `altlar` `yol` `ara` `liste` `yardim` `temizle` `cikis`
 
-If you emit a `.gl` file, **never** include REPL commands.
+These words are ordinary identifiers in `.gl` files. If you emit a `.gl` file, **never** include REPL commands.
 
 ---
 
@@ -160,7 +160,7 @@ veri proje {
 }
 ```
 
-The referent must be an **entity** (`veri`), not a type or set.
+The referent must be an **entity** (`veri`), not a type or set. A schema field `@Kisi` (when `Kisi` is a type) additionally requires that entity’s type to be `Kisi` or a subtype.
 
 ### Paths (query / REPL / `gen_get` / `gen_eval_path`)
 
@@ -214,6 +214,7 @@ Rules:
 - Child type **overrides** the same key; more specific wins.
 - Types with no property object (and no ancestor schema) impose no extra constraints.
 - Nested object schemas recurse. A list schema with at least one element uses **the first element** as the item template.
+- If a schema value is `@Name` and `Name` is a type, the instance must reference an entity of that type or a subtype. Otherwise only the reference kind is checked.
 
 ```gl
 cins U { n = 1 }
@@ -455,6 +456,7 @@ Commands are library-backed. They are **not** document syntax.
 | `yol A B` | path in the type graph if any | `gen_type_path` |
 | `ara text` | case-sensitive substring over names and string values | `gen_search` |
 | `liste cins\|tur\|kume\|veri` | names in declaration order | counts + name getters |
+| `liste Type` | entities of that type, including subtypes | `gen_entities_of` |
 | `yardim` / `temizle` / `cikis` | help / ANSI clear / exit | CLI only |
 | `x.a[1].b[2]` | evaluate path | `gen_eval_path` |
 
@@ -536,7 +538,7 @@ No global library state. Distinct `GenContext` objects may be used from differen
 
 ### Useful queries
 
-`gen_get` / `gen_eval_path`, `gen_types_of`, `gen_ancestors_of`, `gen_descendants_of`, `gen_memberships_of`, `gen_set_members`, `gen_is_member`, `gen_type_path`, `gen_search`, `gen_type_properties` / `gen_set_property`, locations (`gen_*_location`, 1-based line/column).
+`gen_get` / `gen_eval_path`, `gen_types_of`, `gen_ancestors_of`, `gen_descendants_of`, `gen_entities_of`, `gen_memberships_of`, `gen_set_members`, `gen_is_member`, `gen_type_path`, `gen_search`, `gen_type_properties` / `gen_set_property`, locations (`gen_*_location`, 1-based line/column).
 
 ### `GenResult` (numeric values match the enum order in the header)
 
@@ -625,9 +627,9 @@ LSP: `lsp/genlang_lsp.py` (diagnostics, hover, definition) over stdio, via Pytho
 
 ## 19. Checklist before you output `.gl`
 
-- [ ] Only document keywords: `cins` `tur` `kume` `veri` `uye` `iceaktar`
+- [ ] Only document *commands* are declarations: `cins` `tur` `kume` `veri` `uye` `iceaktar` (REPL words may be names)
 - [ ] Types and sets are different; membership is `uye`
-- [ ] Objects use `ident = value`, lists use commas
+- [ ] Objects use `key = value`, lists use commas
 - [ ] Strings are `"…"`, refs are `@ident`
 - [ ] Typed `veri` matches ancestor schemas if present
 - [ ] Every `@name` and `: Type` and `uye … -> Set` names a declared entity/type/set

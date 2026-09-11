@@ -61,7 +61,7 @@ boncuk  MEMBER_OF  SiyahHayvanlar
 
 The analyzer never derives one family of relations from the other. `dyaz` prints **Types** and **Sets** as separate sections for that reason.
 
-Internal relation tags also include `HAS_PROPERTY`, `CONTAINS`, and `REFERENCES`. They are not exposed through the public ABI.
+Internal relation tags also include `HAS_PROPERTY` and `REFERENCES`. `CONTAINS` is reserved and not populated. They are not exposed through the public ABI. Runtime values copy AST line/column/offset so diagnostics can point at nested `@` references.
 
 ## Runtime document
 

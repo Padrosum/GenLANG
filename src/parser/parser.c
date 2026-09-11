@@ -154,6 +154,12 @@ static GenAst *gen_parse_object(GenParser *p);
 static GenAst *gen_parse_list(GenParser *p);
 static GenAst *gen_parse_path_from_ident(GenParser *p, const GenToken *ident);
 
+static bool gen_is_name_token(const GenParser *p)
+{
+    GenTokenKind kind = gen_cur(p)->kind;
+    return kind == TOK_IDENT || gen_token_is_keyword(kind);
+}
+
 static GenAst *gen_parse_literal(GenParser *p)
 {
     const GenToken *tok = gen_cur(p);
@@ -326,7 +332,7 @@ static GenAst *gen_parse_object(GenParser *p)
         char **new_keys;
         GenAst **new_values;
 
-        if (!gen_check(p, TOK_IDENT)) {
+        if (!gen_is_name_token(p)) {
             gen_fail(p, GEN_ERR_PARSE, "expected property name");
             gen_leave(p);
             return NULL;
@@ -422,7 +428,7 @@ static GenAst *gen_parse_path_from_ident(GenParser *p, const GenToken *ident)
         if (gen_match(p, TOK_DOT)) {
             const GenToken *prop;
             GenAst *access;
-            if (!gen_check(p, TOK_IDENT)) {
+            if (!gen_is_name_token(p)) {
                 gen_fail(p, GEN_ERR_PARSE, "expected property name after '.'");
                 gen_leave(p);
                 return NULL;
@@ -861,6 +867,14 @@ static GenAst *gen_parse_statement(GenParser *p)
 {
     const GenToken *tok = gen_cur(p);
 
+    if (p->mode == GEN_PARSE_PATH) {
+        if (tok->kind == TOK_IDENT) {
+            return gen_parse_path_from_ident(p, tok);
+        }
+        gen_fail(p, GEN_ERR_PARSE, "expected path");
+        return NULL;
+    }
+
     switch (tok->kind) {
     case TOK_CINS:
         return gen_parse_type_decl(p, GEN_AST_GENUS);
@@ -943,7 +957,14 @@ GenResult gen_parse(
         return GEN_ERR_OUT_OF_MEMORY;
     }
 
-    rc = gen_lex_all(ctx, source, length, &p.tokens, &p.token_count);
+    rc = gen_lex_all(
+        ctx,
+        source,
+        length,
+        mode == GEN_PARSE_REPL ? GEN_LEX_REPL : GEN_LEX_DOCUMENT,
+        &p.tokens,
+        &p.token_count
+    );
     if (rc != GEN_OK) {
         ctx->source_path = saved_path;
         gen_arena_destroy(p.arena);
@@ -980,6 +1001,23 @@ GenResult gen_parse(
                 stmt->column,
                 stmt->offset,
                 "commands are not allowed in documents"
+            );
+            return GEN_ERR_PARSE;
+        }
+        if (mode == GEN_PARSE_PATH &&
+            stmt->kind != GEN_AST_IDENT &&
+            stmt->kind != GEN_AST_PROP_ACCESS &&
+            stmt->kind != GEN_AST_INDEX_ACCESS) {
+            ctx->source_path = saved_path;
+            gen_tokens_free(p.tokens);
+            gen_arena_destroy(p.arena);
+            gen_context_set_error(
+                ctx,
+                GEN_ERR_PARSE,
+                stmt->line,
+                stmt->column,
+                stmt->offset,
+                "expected a path"
             );
             return GEN_ERR_PARSE;
         }

@@ -31,6 +31,32 @@ void test_semantic(void)
     TEST_ASSERT(parse_rc("cins U { n = 1 }\ncins T -> U { s = \"\" }\nveri a : T { n = 1, s = \"ok\" }\n") == GEN_OK);
     TEST_ASSERT(parse_rc("cins U { n = 1 }\ncins T -> U { s = \"\" }\nveri a : T { s = \"ok\" }\n") == GEN_ERR_SEMANTIC);
 
+    TEST_ASSERT(parse_rc(
+        "cins Kisi\n"
+        "cins Kayit { sahibi = @Kisi }\n"
+        "veri ahmet : Kisi { n = 1 }\n"
+        "veri r : Kayit { sahibi = @ahmet }\n"
+    ) == GEN_OK);
+    TEST_ASSERT(parse_rc(
+        "cins Kisi\n"
+        "cins Hayvan\n"
+        "cins Kayit { sahibi = @Kisi }\n"
+        "veri kedi : Hayvan { n = 1 }\n"
+        "veri r : Kayit { sahibi = @kedi }\n"
+    ) == GEN_ERR_SEMANTIC);
+
+    {
+        GenContext *ctx = gen_context_create();
+        GenDocument *doc = NULL;
+        const GenError *err;
+        TEST_ASSERT(gen_document_parse(ctx, "veri x = @missing\n", &doc) != GEN_OK);
+        err = gen_context_last_error(ctx);
+        TEST_ASSERT(gen_error_line(err) >= 1);
+        TEST_ASSERT(gen_error_column(err) >= 1);
+        gen_document_free(doc);
+        gen_context_free(ctx);
+    }
+
     {
         GenContext *ctx = gen_context_create();
         GenDocument *doc = NULL;

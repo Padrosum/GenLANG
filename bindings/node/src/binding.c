@@ -173,6 +173,7 @@ static napi_value Document_entity(napi_env env, napi_callback_info info);
 static napi_value Document_get(napi_env env, napi_callback_info info);
 static napi_value Document_ancestors(napi_env env, napi_callback_info info);
 static napi_value Document_members(napi_env env, napi_callback_info info);
+static napi_value Document_entitiesOf(napi_env env, napi_callback_info info);
 static napi_value Document_isMember(napi_env env, napi_callback_info info);
 static napi_value Document_serialize(napi_env env, napi_callback_info info);
 static napi_value Document_toJson(napi_env env, napi_callback_info info);
@@ -194,6 +195,7 @@ static napi_value wrap_document(napi_env env, GenContext *ctx, GenDocument *doc)
         {"get", NULL, Document_get, NULL, NULL, NULL, napi_default, NULL},
         {"ancestors", NULL, Document_ancestors, NULL, NULL, NULL, napi_default, NULL},
         {"members", NULL, Document_members, NULL, NULL, NULL, napi_default, NULL},
+        {"entitiesOf", NULL, Document_entitiesOf, NULL, NULL, NULL, napi_default, NULL},
         {"isMember", NULL, Document_isMember, NULL, NULL, NULL, napi_default, NULL},
         {"serialize", NULL, Document_serialize, NULL, NULL, NULL, napi_default, NULL},
         {"toJson", NULL, Document_toJson, NULL, NULL, NULL, napi_default, NULL},
@@ -436,6 +438,25 @@ static napi_value Document_members(napi_env env, napi_callback_info info)
         return throw_error(env, "out of memory");
     }
     rc = gen_set_members(w->doc, name, &result);
+    free(name);
+    return query_names(env, rc, result, w);
+}
+
+static napi_value Document_entitiesOf(napi_env env, napi_callback_info info)
+{
+    napi_value args[1];
+    DocWrap *w = unwrap_doc(env, info, 1, args);
+    char *name;
+    GenQueryResult *result = NULL;
+    GenResult rc;
+    if (w == NULL) {
+        return NULL;
+    }
+    name = utf8_dup(env, args[0]);
+    if (name == NULL) {
+        return throw_error(env, "out of memory");
+    }
+    rc = gen_entities_of(w->doc, name, &result);
     free(name);
     return query_names(env, rc, result, w);
 }

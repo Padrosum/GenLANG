@@ -22,13 +22,22 @@ null          = "null" ;
 ```
 
 Identifiers are UTF-8. ASCII names match `[A-Za-z_][A-Za-z0-9_]*`; non-ASCII letters such as `ı` or `ö` are also allowed. Language punctuation and whitespace are not identifier characters.
-Keywords are reserved and are not valid identifiers:
+Keywords are reserved in the position they occupy. Document keywords and literals
+(`cins tur kume veri uye iceaktar true false null`) are not valid identifiers.
+REPL command words (`dyaz`, `liste`, …) are **identifiers in `.gl` files**; they
+are keywords only in the REPL. Object property names may be identifiers or any
+keyword (including `cins` or `true`).
 
 ```text
 cins tur kume veri uye iceaktar
+true false null
+```
+
+REPL-only (illegal as commands in document files; legal as names in `.gl` files):
+
+```text
 dyaz goster uyeler icerir ustler altlar yol ara liste
 yardim temizle cikis
-true false null
 ```
 
 ## Documents
@@ -54,7 +63,8 @@ literal       = string | integer | float | boolean | null ;
 reference     = "@" ident ;
 
 list          = "[" [ expression { "," expression } [ "," ] ] "]" ;
-object        = "{" { ident "=" expression [ "," ] } "}" ;
+object        = "{" { object-key "=" expression [ "," ] } "}" ;
+object-key    = ident | document-keyword | literal-keyword | repl-keyword ;
 ```
 
 Object properties may be separated by whitespace (including newlines) and optional commas.
@@ -72,6 +82,9 @@ If a type declaration includes a property object, that object is an optional
 schema: typed `veri` must provide those keys with the same value kinds.
 Ancestor properties apply; a child type overrides the same key. Extra keys on
 the instance are allowed. Types without properties are unconstrained.
+If a schema value is a reference `@Name` and `Name` is a type, the instance
+must reference an entity whose type is `Name` or a subtype. If `Name` is not
+a type, only the reference kind is checked.
 
 ## Paths (REPL / `gen_eval_path`)
 
@@ -102,4 +115,5 @@ command       = "dyaz" ident
               | "cikis" ;
 ```
 
-Commands are not legal in document files.
+Commands are not legal in document files. `liste` followed by a type name lists
+entities of that type (including subtypes), via `gen_entities_of`.

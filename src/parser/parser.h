@@ -5,7 +5,8 @@
 
 typedef enum {
     GEN_PARSE_DOCUMENT = 0,
-    GEN_PARSE_REPL
+    GEN_PARSE_REPL,
+    GEN_PARSE_PATH
 } GenParseMode;
 
 GenResult gen_parse(

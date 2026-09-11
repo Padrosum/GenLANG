@@ -294,6 +294,7 @@ int gen_cli_exec_line(GenDocument *doc, const char *line, FILE *out, FILE *err, 
             "  yol <from> <to>             Path in the type hierarchy\n"
             "  ara <text>                  Search names and string values\n"
             "  liste cins|tur|kume|veri    List declarations\n"
+            "  liste <type>                Entities of a type (including subtypes)\n"
             "  <path>                      Evaluate a nested path (e.g. x.a[1].b[2])\n",
             out
         );
@@ -436,8 +437,13 @@ int gen_cli_exec_line(GenDocument *doc, const char *line, FILE *out, FILE *err, 
                 }
             }
         } else {
-            fprintf(err, "error: liste expects cins, tur, kume, or veri\n");
-            return GEN_EXIT_USAGE;
+            rc = gen_entities_of(doc, arg1, &result);
+            if (rc != GEN_OK) {
+                fprintf(err, "error: liste expects cins, tur, kume, veri, or a type name\n");
+                return GEN_EXIT_USAGE;
+            }
+            gen_print_result_lines(result, out);
+            gen_query_result_free(result);
         }
         return GEN_EXIT_OK;
     }

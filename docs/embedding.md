@@ -23,7 +23,7 @@ GenDocument *doc = NULL;
 if (gen_document_parse(ctx, source, &doc) != GEN_OK) {
     /* inspect gen_context_last_error(ctx) */
 }
-/* gen_get, gen_types_of, gen_document_to_json / gen_document_to_yaml / gen_document_to_binary, … */
+/* gen_get, gen_types_of, gen_entities_of, gen_document_to_json / … */
 gen_document_free(doc);
 gen_context_free(ctx);
 ```

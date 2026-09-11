@@ -2,6 +2,28 @@
 
 All notable changes to this project are documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- `gen_entities_of` — entities whose type is a given type or a subtype (REPL `liste Type`, bindings `entities_of` / `EntitiesOf`)
+- Typed reference schemas: `@TypeName` on a `cins`/`tur` property requires the instance to reference an entity of that type or a subtype
+
+### Changed
+
+- REPL command words (`liste`, `ara`, `yol`, …) are identifiers in `.gl` files; they are keywords only in the REPL
+- Object property names may be keywords (`{ cins = 1 }`)
+- Path evaluation (`gen_eval_path` / `gen_get`) lexes with the document keyword set so names such as `liste.x` work
+
+### Fixed
+
+- Unknown `@` references report the value’s line and column instead of `0:0`
+- Schema mismatch diagnostics use the field’s source location when available
+- `gen_context_clear_error` freed error messages but leaked `path` strings
+- Internal `CONTAINS` relations were self-edges (`owner → owner`); they are no longer recorded
+- REPL treated `cinsiyet` as a `cins` declaration because it matched the `cins` prefix
+- Language server identifier detection now accepts UTF-8 names such as `böncü`
+
 ## [0.1.0] — 2026-09-06
 
 Initial public release of libgenlang and the genlang CLI.

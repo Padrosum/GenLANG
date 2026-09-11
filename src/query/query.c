@@ -167,7 +167,7 @@ GenResult gen_eval_path(const GenDocument *document, const char *path, GenValue 
         gen_free(wrapped);
         return GEN_ERR_OUT_OF_MEMORY;
     }
-    rc = gen_parse(ctx, wrapped, n, GEN_PARSE_REPL, NULL, &program);
+    rc = gen_parse(ctx, wrapped, n, GEN_PARSE_PATH, NULL, &program);
     if (rc != GEN_OK) {
         gen_context_free(ctx);
         gen_free(wrapped);
@@ -355,6 +355,38 @@ GenResult gen_set_members(
     gen_strvec_init(&names);
     for (i = 0; i < set->members.count; i++) {
         GenEntity *ent = (GenEntity *)set->members.items[i];
+        if (!gen_strvec_push_copy(&names, ent->name)) {
+            gen_strvec_free_all(&names);
+            return GEN_ERR_OUT_OF_MEMORY;
+        }
+    }
+    return gen_result_from_names(&names, out_result);
+}
+
+GenResult gen_entities_of(
+    const GenDocument *document,
+    const char *type_name,
+    GenQueryResult **out_result
+)
+{
+    GenTypeNode *want;
+    GenStrVec names;
+    size_t i;
+
+    if (document == NULL || type_name == NULL || out_result == NULL) {
+        return GEN_ERR_INVALID_ARGUMENT;
+    }
+    *out_result = NULL;
+    want = gen_type_lookup(document, type_name);
+    if (want == NULL) {
+        return GEN_ERR_NOT_FOUND;
+    }
+    gen_strvec_init(&names);
+    for (i = 0; i < document->entities_order.count; i++) {
+        GenEntity *ent = (GenEntity *)document->entities_order.items[i];
+        if (ent->type == NULL || !gen_type_is_or_subtype(ent->type, want)) {
+            continue;
+        }
         if (!gen_strvec_push_copy(&names, ent->name)) {
             gen_strvec_free_all(&names);
             return GEN_ERR_OUT_OF_MEMORY;

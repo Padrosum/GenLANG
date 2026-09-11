@@ -352,6 +352,21 @@ impl Document {
         }
     }
 
+    pub fn entities_of(&self, type_name: &str) -> Result<Vec<String>, Error> {
+        let c_name = cstring(type_name)?;
+        unsafe {
+            let mut result: *mut ffi::GenQueryResult = ptr::null_mut();
+            let rc = ffi::gen_entities_of(self.doc, c_name.as_ptr(), &mut result);
+            names_from_query(rc, result).map_err(|code| Error {
+                code,
+                message: format!("unknown type '{type_name}'"),
+                line: 0,
+                column: 0,
+                path: None,
+            })
+        }
+    }
+
     pub fn is_member(&self, set_name: &str, entity: &str) -> Result<bool, Error> {
         let c_set = cstring(set_name)?;
         let c_ent = cstring(entity)?;

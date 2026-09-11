@@ -140,6 +140,7 @@ void gen_context_clear_error(GenContext *ctx)
     gen_error_reset(&ctx->last_error);
     for (i = 0; i < ctx->error_count; i++) {
         gen_free(ctx->errors[i].message);
+        gen_free(ctx->errors[i].path);
     }
     gen_free(ctx->errors);
     ctx->errors = NULL;

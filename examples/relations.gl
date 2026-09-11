@@ -1,12 +1,17 @@
 cins Kisi
 
+cins Proje {
+    sahibi = @Kisi
+    etiketler = [""]
+}
+
 veri ahmet : Kisi {
     isim = "Ahmet"
 }
 
 veri owner = @ahmet
 
-veri proje {
+veri proje : Proje {
     sahibi = @ahmet
     etiketler = ["genlang", "veri"]
 }
