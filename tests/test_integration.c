@@ -112,6 +112,42 @@ void test_integration(void)
     gen_document_free(doc);
     doc = NULL;
 
+    TEST_ASSERT(gen_document_load_file(ctx, "examples/cookbook.gl", &doc) == GEN_OK);
+    TEST_ASSERT(gen_get(doc, "mercimek.sure_dk", &value) == GEN_OK);
+    TEST_ASSERT(gen_value_int(value) == 35);
+    gen_value_free(value);
+    TEST_ASSERT(gen_is_member(doc, "Vejetaryen", "mercimek", &is_member) == GEN_OK);
+    TEST_ASSERT(is_member == 1);
+    TEST_ASSERT(gen_entities_of(doc, "Corba", &result) == GEN_OK);
+    TEST_ASSERT(gen_query_result_count(result) == 1);
+    gen_query_result_free(result);
+    gen_document_free(doc);
+    doc = NULL;
+
+    TEST_ASSERT(gen_document_load_file(ctx, "examples/team.gl", &doc) == GEN_OK);
+    TEST_ASSERT(gen_get(doc, "hata_42.sorumlu", &value) == GEN_OK);
+    TEST_ASSERT(gen_value_type(value) == GEN_VALUE_REFERENCE);
+    TEST_ASSERT_STR(gen_value_reference(value), "alihan");
+    gen_value_free(value);
+    TEST_ASSERT(gen_entities_of(doc, "Kisi", &result) == GEN_OK);
+    TEST_ASSERT(gen_query_result_count(result) == 2);
+    gen_query_result_free(result);
+    gen_document_free(doc);
+    doc = NULL;
+
+    TEST_ASSERT(gen_document_load_file(ctx, "examples/values.gl", &doc) == GEN_OK);
+    TEST_ASSERT(gen_get(doc, "person.cins", &value) == GEN_OK);
+    TEST_ASSERT_STR(gen_value_string(value), "meta");
+    gen_value_free(value);
+    TEST_ASSERT(gen_get(doc, "liste[2]", &value) == GEN_OK);
+    TEST_ASSERT(gen_value_int(value) == 30);
+    gen_value_free(value);
+    TEST_ASSERT(gen_get(doc, "tree.a[1].b[2]", &value) == GEN_OK);
+    TEST_ASSERT(gen_value_int(value) == 60);
+    gen_value_free(value);
+    gen_document_free(doc);
+    doc = NULL;
+
     TEST_ASSERT(gen_document_load_file(ctx, "tests/fixtures/import/diamond.gl", &doc) == GEN_OK);
     TEST_ASSERT(gen_type_count(doc) == 4);
     gen_document_free(doc);

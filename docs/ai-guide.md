@@ -386,6 +386,8 @@ veri boncuk : Kedi {
 }
 ```
 
+Commented walk-throughs (keyword-by-keyword): `examples/cookbook.gl`, `examples/team.gl`, `examples/values.gl`.
+
 ---
 
 ## 12. How to generate valid GenLang

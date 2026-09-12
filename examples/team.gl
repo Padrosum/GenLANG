@@ -1,0 +1,62 @@
+# Ekip — tür (rol) ile küme (takım) ayrı durur; @ bir kopya değil bağdır.
+#
+#   ./build/genlang check examples/team.gl
+#   ./build/genlang query examples/team.gl hata_42.sorumlu
+#   ./build/genlang repl examples/team.gl
+#       liste Kisi          # Kisi ve alt türlerin tüm örnekleri
+#       dyaz alihan         # Types: ...   Sets: ...
+#       goster hata_42
+#
+# @alihan  → referans (GEN_VALUE_REFERENCE). "alihan" bir dizge değildir.
+# sahibi = @Kisi şeması: hedef entity Kisi veya alt türü olmalı (Gelistirici yeter).
+
+cins Kisi {
+    isim = ""
+}
+
+# Gelistirici bir Kisi'dir. tur yaprak olmak zorunda değildir.
+tur Gelistirici -> Kisi {
+    dil = ""
+}
+
+tur Tasarimci -> Kisi
+
+# Görev bir kişi değildir. sorumlu alanı bir Kisi'ye işaret eder.
+cins Gorev {
+    baslik = ""
+    sorumlu = @Kisi
+}
+
+# Takımlar tür değildir. Üyelik uye ile kurulur.
+kume Cekirdek
+kume Uzaktan
+kume OnYuz
+
+veri alihan : Gelistirici {
+    isim = "Alihan"
+    dil = "C"
+}
+
+veri ece : Tasarimci {
+    isim = "Ece"
+}
+
+# İleriye referans: hata_42, ece'den önce yazılsa da olur.
+veri hata_42 : Gorev {
+    baslik = "Lexer keyword ayrımı"
+    sorumlu = @alihan
+    etiketler = ["parser", "repl"]
+}
+
+veri afis : Gorev {
+    baslik = "Örnek sayfası"
+    sorumlu = @ece
+}
+
+# Aynı kişi hem Cekirdek hem Uzaktan olabilir. Rolü (Gelistirici) bunu vermez.
+uye alihan -> Cekirdek
+uye alihan -> Uzaktan
+uye ece -> Cekirdek
+uye ece -> OnYuz
+# Görev entity'si de kümeye girebilir. Küme, üyenin türünü seçmez.
+uye hata_42 -> Cekirdek

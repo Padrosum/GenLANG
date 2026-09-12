@@ -1,0 +1,48 @@
+# Değer türleri, yollar, anahtar adları
+#
+#   ./build/genlang check examples/values.gl
+#   ./build/genlang query examples/values.gl person.age
+#   ./build/genlang query examples/values.gl tree.a[1].b[2]
+#   ./build/genlang query examples/values.gl liste[2]
+#
+# Kind'ler karışmaz: 1 int'tir, 1.0 float'tır. Şemada birbirinin yerine geçmez.
+# true / false / null anahtar sözcüktür; dizge değillerdir.
+# @hedef bir referanstır. "@hedef" ise sıradan bir yazıdır.
+
+veri bos = null
+veri acik = true
+veri tam = 1
+veri ondalik = 1.0
+veri metin = "satır\niçinde"
+veri hedef = "kök"
+
+# @hedef → entity adı "hedef". Kopyalamaz, bağlamaz-çözmez; isim tutar.
+veri bag = @hedef
+
+# Liste: öğeler virgülle ayrılır, sonda virgül serbesttir.
+# "liste" REPL'de komuttur ama .gl dosyasında geçerli bir entity adıdır.
+veri liste = [10, 20, 30]
+
+# Nesne: anahtar = değer. JSON'daki "key": value değil.
+# Anahtar, belge anahtar sözcüğü bile olabilir (cins, tur, veri, …).
+veri person {
+    name = "Ahmet"
+    age = 25
+    active = true
+    nickname = null
+    cins = "meta"
+    tur = "ornek"
+}
+
+veri tree {
+    a = [
+        { b = [10, 20, 30] },
+        { b = [40, 50, 60] }
+    ]
+}
+
+# Yollar (belgede değil, query / REPL):
+#   person.age        → 25
+#   tree.a[1].b[2]    → 60     (indeks 0'dan; negatif yok)
+#   liste[2]          → 30
+#   bag               → @hedef

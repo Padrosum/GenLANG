@@ -1,0 +1,72 @@
+# Mutfak kataloğu — GenLang yapıtaşları
+#
+# Bu dosya her bildirim anahtarının ne işe yaradığını gösterir.
+# Çalıştırmak:
+#   ./build/genlang check examples/cookbook.gl
+#   ./build/genlang query examples/cookbook.gl mercimek.sure_dk
+#   ./build/genlang repl examples/cookbook.gl
+#       dyaz mercimek
+#       liste Corba
+#       uyeler Kis
+#
+# cins  = genel tür (genus). "Bu ne *türünde* bir şey?" sorusunun geniş cevabı.
+# tur   = daha özel tür (species). Aynı tip grafındadır; semantik kural farkı yok.
+#         -> ebeveyn türü bağlar (SUBTYPE_OF). İleriye referans serbesttir.
+# kume  = bağımsız etiket / koleksiyon. Tür grafından türetilmez.
+# veri  = adlandırılmış değer. İstersen ": Tur" ile bir türe bağlanır (TYPE_OF).
+# uye   = kümeye üyelik (MEMBER_OF). Tür olmak hiçbir kümeye otomatik koymaz.
+
+# --- Tür hiyerarşisi (ne *olduğu*) -----------------------------------------
+
+cins Yiyecek {
+    # Şema: dummy değer kind şablonudur, varsayılan değer değildir.
+    # ""  → string zorunlu,  0 → int zorunlu.
+    ad = ""
+}
+
+cins Sicak -> Yiyecek {
+    sure_dk = 0
+}
+
+tur Corba -> Sicak
+tur Tatli -> Yiyecek {
+    sekerli = true
+}
+
+# --- Kümeler (nereye *ait* olduğu) -----------------------------------------
+# Vejetaryen bir tür değildir. Mercimek çorbası hem Corba hem Vejetaryen
+# olabilir; bu iki bilgi karışmaz.
+
+kume Vejetaryen {
+    aciklama = "hayvansal ürün yok"
+}
+
+kume Kis
+kume Misafir
+
+# --- Veriler (örnekler) ----------------------------------------------------
+
+veri mercimek : Corba {
+    ad = "Mercimek çorbası"
+    sure_dk = 35
+    porsiyon = 4
+}
+
+veri sutlac : Tatli {
+    ad = "Sütlaç"
+    sekerli = true
+    sure_dk = 50
+}
+
+# Türü olmayan veri de geçerlidir. Şema uygulanmaz.
+
+veri not = "fırını önceden ısıt"
+
+# --- Üyelik ----------------------------------------------------------------
+# mercimek bir Corba'dır (tür). Ayrıca Kis ve Vejetaryen kümelerindedir.
+# sutlac Tatli'dır ama Vejetaryen kümesinde değildir — ta ki uye denene.
+
+uye mercimek -> Vejetaryen
+uye mercimek -> Kis
+uye mercimek -> Misafir
+uye sutlac -> Kis

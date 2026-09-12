@@ -887,6 +887,23 @@ Types = album / track. Sets = playlists. See `examples/music.gl`. A track is not
 
 Types = kind of document. Sets = `Sifreli`, `Taslak`, `Arsiv`. See `examples/notes.gl`. Forward `@refs` between notes are allowed.
 
+## Kitchen catalog (all six document keywords)
+
+`examples/cookbook.gl` comments every keyword. Types = what the dish *is* (`Corba`, `Tatli`). Sets = diet and season tags (`Vejetaryen`, `Kis`). Being a soup does not make it vegetarian.
+
+```bash
+./build/genlang query examples/cookbook.gl mercimek.sure_dk
+# 35
+```
+
+## Team and typed references
+
+`examples/team.gl` — a `Gelistirici` is a `Kisi`; `Cekirdek` is a set, not a type. `sorumlu = @Kisi` on `Gorev` requires the target to be a person (or a subtype). `liste Kisi` / `gen_entities_of` returns both developers and designers.
+
+## Value kinds and names
+
+`examples/values.gl` — `null`, bool, int vs float, string, list, object, `@ref`. The entity `liste` is a legal name in a `.gl` file. Object keys may be keywords (`cins = "meta"`). Path `tree.a[1].b[2]` is `60`.
+
 ## Unicode names
 
 ```gl
@@ -929,6 +946,9 @@ When explaining a file, describe type ancestry and set membership in **separate 
 | `examples/music.gl` | media kinds vs playlists |
 | `examples/packages.gl` | tool catalog vs channels |
 | `examples/notes.gl` | document kinds vs tags |
+| `examples/cookbook.gl` | commented walk-through of cins/tur/kume/veri/uye |
+| `examples/team.gl` | roles vs teams, typed `@Kisi` refs, `gen_entities_of` |
+| `examples/values.gl` | every value kind, keyword keys, entity named `liste` |
 | `examples/import/` | `iceaktar` |
 | `examples/embed.c` | C ABI queries |
 | `examples/embed_python.py` | Python `load` / `get` / `members` |
